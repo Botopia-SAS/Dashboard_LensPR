@@ -1,6 +1,22 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { ThemeProvider } from "../context/ThemeContext";
+import Sidebar from "../components/Sidebar";
+import PageWrapper from "@/components/layout/PageWrapper";
+import {
+  ClerkProvider,
+  SignInButton,
+  SignedIn,
+  SignedOut,
+} from "@clerk/nextjs";
+import { Arsenal } from "next/font/google";
+
+const arsenal = Arsenal({
+  subsets: ["latin"],
+  weight: ["400", "700"],
+  variable: "--font-arsenal",
+});
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -23,12 +39,30 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        {children}
-      </body>
-    </html>
+    <ClerkProvider>
+      <html lang="en">
+        <body className={arsenal.variable}>
+          <SignedIn>
+            <PageWrapper>
+              <ThemeProvider>
+                <div className="flex">
+                  {/* Sidebar con width fijo */}
+                  <div className="fixed left-0 top-0 w-[150px] h-screen bg-gray-900 text-black">
+                    <Sidebar />
+                  </div>
+
+                  {/* Contenedor principal con padding izquierdo en lugar de margen */}
+                  <div className="flex-1 min-h-screen p-6 transition-all duration-300 lg:ml-[150px]">
+                    {/* User Profile Button en la barra superior */}
+                    <div className="flex justify-end mb-4"></div>
+                    {children}
+                  </div>
+                </div>
+              </ThemeProvider>
+            </PageWrapper>
+          </SignedIn>
+        </body>
+      </html>
+    </ClerkProvider>
   );
 }
