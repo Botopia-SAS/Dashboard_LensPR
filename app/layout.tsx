@@ -11,6 +11,7 @@ import {
   SignedOut,
 } from "@clerk/nextjs";
 import { Arsenal } from "next/font/google";
+import Header from "@/components/Header";
 
 const arsenal = Arsenal({
   subsets: ["latin"],
@@ -50,9 +51,8 @@ export default function RootLayout({
                   <div className="fixed left-0 top-0 w-[150px] h-screen bg-gray-900 text-black">
                     <Sidebar />
                   </div>
-
                   {/* Contenedor principal con padding izquierdo en lugar de margen */}
-                  <div className="flex-1 min-h-screen p-6 transition-all duration-300 lg:ml-[150px]">
+                  <div className="flex-1 min-h-screen pt-2 px-6 transition-all duration-300 lg:ml-[150px]">
                     {/* User Profile Button en la barra superior */}
                     <div className="flex justify-end mb-4"></div>
                     {children}

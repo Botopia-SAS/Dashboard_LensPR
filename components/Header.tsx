@@ -11,8 +11,9 @@ const Header = ({
   const languages = ["Español", "Inglés", "Portugués"];
 
   const handleChange = (lang: string) => {
+    console.log(`Cambiando idioma a: ${lang}`); // Verificar en consola
     setSelectedLanguage(lang);
-    onLanguageChange(lang); // Envía el idioma seleccionado a la página
+    onLanguageChange(lang); // Notificar a `ClientsPage.tsx`
   };
 
   return (
