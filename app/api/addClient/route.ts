@@ -1,118 +1,52 @@
 import { NextResponse } from "next/server";
-import { supabase } from "@/lib/supabaseClient";
-import cloudinary from "@/lib/cloudinary";
+import { createClient } from "@supabase/supabase-js";
+
+// Configura tu conexión con Supabase
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 export async function POST(req: Request) {
   try {
-    console.log("📌 Recibiendo solicitud...");
-    const formData = await req.formData();
+    const body = await req.json();
+    console.log("📌 Datos recibidos en la API:", body);
 
-    const name = formData.get("name") as string;
-    const email = formData.get("email") as string;
-    const country = formData.get("country") as string;
-    const job_title = formData.get("job_title") as string;
-    const description = formData.get("description") as string;
-    const file = formData.get("file") as Blob | null;
+    const { Español, Inglés, Portugués, media_url } = body; // ✅ Agregar media_url
 
-    console.log("📌 Datos recibidos:", {
-      name,
-      email,
-      country,
-      job_title,
-      description,
-    });
+    // Mapeo de datos para insertarlos en la base de datos
+    const dataToInsert = {
+      name_spanish: Español?.name || null,
+      name_english: Inglés?.name || null,
+      name_portuguese: Portugués?.name || null,
+      country_spanish: Español?.country || null,
+      country_english: Inglés?.country || null,
+      country_portuguese: Portugués?.country || null,
+      job_title_spanish: Español?.job_title || null,
+      job_title_english: Inglés?.job_title || null,
+      job_title_portuguese: Portugués?.job_title || null,
+      description_spanish: Español?.description || null,
+      description_english: Inglés?.description || null,
+      description_portuguese: Portugués?.description || null,
+      media_url: media_url || null, // ✅ Guardar el link de la imagen o video
+    };
 
-    if (!name || !email || !country || !job_title || !description) {
-      console.error("⚠️ Faltan datos obligatorios");
-      return NextResponse.json(
-        { error: "Faltan datos obligatorios" },
-        { status: 400 }
-      );
-    }
+    console.log("📌 Datos a insertar en Supabase:", dataToInsert);
 
-    // Verificar si el email ya existe
-    const { data: existingClient, error: emailError } = await supabase
-      .from("clients")
-      .select("id")
-      .eq("email", email)
-      .single();
-
-    if (emailError) {
-      console.error(
-        "⚠️ Error verificando email en Supabase:",
-        emailError.message
-      );
-    }
-
-    if (existingClient) {
-      console.error("⚠️ El correo ya está registrado:", email);
-      return NextResponse.json(
-        { error: "El correo electrónico ya está registrado" },
-        { status: 400 }
-      );
-    }
-
-    let imageUrl = null;
-
-    // Si se sube una imagen, la enviamos a Cloudinary
-    if (file) {
-      console.log("📌 Subiendo imagen a Cloudinary...");
-      const arrayBuffer = await file.arrayBuffer();
-      const buffer = Buffer.from(arrayBuffer);
-
-      try {
-        const result: any = await new Promise((resolve, reject) => {
-          cloudinary.uploader
-            .upload_stream({ resource_type: "auto" }, (error, result) => {
-              if (error) reject(error);
-              else resolve(result);
-            })
-            .end(buffer);
-        });
-
-        if (!result.secure_url) {
-          console.error("⚠️ Error subiendo imagen a Cloudinary");
-          return NextResponse.json(
-            { error: "Error subiendo imagen" },
-            { status: 500 }
-          );
-        }
-
-        imageUrl = result.secure_url;
-        console.log("✅ Imagen subida con éxito:", imageUrl);
-      } catch (uploadError) {
-        console.error("⚠️ Error en Cloudinary:", uploadError);
-        return NextResponse.json(
-          { error: "Error al subir imagen" },
-          { status: 500 }
-        );
-      }
-    }
-
-    // Insertar el cliente con la imagen en Supabase
-    console.log("📌 Insertando en Supabase...");
     const { data, error } = await supabase
       .from("clients")
-      .insert([
-        { name, email, country, job_title, description, image_url: imageUrl },
-      ])
-      .select("id")
-      .single();
+      .insert([dataToInsert]);
 
     if (error) {
-      console.error("⚠️ Error insertando en Supabase:", error.message);
-      throw error;
+      console.error("❌ Error al insertar en Supabase:", error);
+      return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
-    console.log("✅ Cliente guardado con éxito:", data.id);
-    return NextResponse.json({
-      id: data.id,
-      message: "Cliente guardado con éxito",
-    });
+    console.log("✅ Cliente agregado con éxito:", data);
+    return NextResponse.json({ message: "Cliente agregado con éxito", data });
   } catch (error) {
-    console.error("⚠️ Error general en el servidor:", error);
+    console.error("❌ Error en la API:", error);
     return NextResponse.json(
-      { error: "Error en el servidor" },
+      { error: "Error al agregar cliente", details: error },
       { status: 500 }
     );
   }

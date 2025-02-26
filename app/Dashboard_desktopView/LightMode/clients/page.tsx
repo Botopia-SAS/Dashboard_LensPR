@@ -1,37 +1,24 @@
 "use client";
 import { useState } from "react";
+import Header from "@/components/Header";
+import ClientsForm from "@/components/forms/clientsForms/ClientsForm";
 
-const Header = ({
-  onLanguageChange,
-}: {
-  onLanguageChange: (lang: string) => void;
-}) => {
+const ClientsPage = () => {
   const [selectedLanguage, setSelectedLanguage] = useState("Español");
 
-  const languages = ["Español", "Inglés", "Portugués"];
-
-  const handleChange = (lang: string) => {
-    setSelectedLanguage(lang);
-    onLanguageChange(lang); // Envía el idioma seleccionado a la página
-  };
-
   return (
-    <div className="border-b border-black px-6 py-3">
-      <div className="flex gap-4">
-        {languages.map((lang) => (
-          <button
-            key={lang}
-            className={`px-4 py-2 rounded-md font-arsenal ${
-              selectedLanguage === lang ? "bg-gray-200" : ""
-            }`}
-            onClick={() => handleChange(lang)}
-          >
-            {lang}
-          </button>
-        ))}
-      </div>
+    <div className="p-6">
+      {/* Pasar correctamente la función al Header */}
+      <Header onLanguageChange={(lang) => setSelectedLanguage(lang)} />
+
+      <h1 className="text-3xl font-arsenal mb-6">
+        Gestión de Clientes - {selectedLanguage}
+      </h1>
+
+      {/* Mostrar el formulario correspondiente al idioma seleccionado */}
+      <ClientsForm language={selectedLanguage} />
     </div>
   );
 };
 
-export default Header;
+export default ClientsPage;

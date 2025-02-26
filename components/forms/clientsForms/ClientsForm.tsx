@@ -1,12 +1,31 @@
-import { useState, useEffect } from "react";
-import FormComponent from "../FormComponent";
+"use client";
+import React, { useState } from "react";
+import FormComponent from "../FormComponent"; // Asegúrate de la ruta correcta
 
-const translateText = async (text: string, targetLang: string) => {
+type LanguageData = {
+  name: string;
+  country: string;
+  job_title: string;
+  description: string;
+};
+
+type FormDataType = {
+  Español: LanguageData;
+  Inglés: LanguageData;
+  Portugués: LanguageData;
+  media_url: string; // ✅ Nuevo campo para la imagen o video
+};
+
+const translateText = async (
+  text: string,
+  sourceLang: string,
+  targetLang: string
+) => {
   try {
     const response = await fetch(
       `https://api.mymemory.translated.net/get?q=${encodeURIComponent(
         text
-      )}&langpair=es|${targetLang}`
+      )}&langpair=${sourceLang}|${targetLang}`
     );
     const data = await response.json();
     return data.responseData.translatedText || text;
@@ -16,125 +35,159 @@ const translateText = async (text: string, targetLang: string) => {
   }
 };
 
-type FormData = {
-  email: string;
-  image: File | null;
-  Español: {
-    name: string;
-    country: string;
-    job_title: string;
-    description: string;
-  };
-  Inglés: {
-    name: string;
-    country: string;
-    job_title: string;
-    description: string;
-  };
-  Portugués: {
-    name: string;
-    country: string;
-    job_title: string;
-    description: string;
-  };
-  [key: string]: any;
-};
-
-const ClientForm = ({ language }: { language: string }) => {
-  const [formData, setFormData] = useState<FormData>({
-    email: "",
-    image: null,
+const ClientsForm: React.FC = () => {
+  const [selectedLanguage, setSelectedLanguage] =
+    useState<keyof FormDataType>("Español");
+  const [formData, setFormData] = useState<FormDataType>({
     Español: { name: "", country: "", job_title: "", description: "" },
     Inglés: { name: "", country: "", job_title: "", description: "" },
     Portugués: { name: "", country: "", job_title: "", description: "" },
+    media_url: "", // ✅ Agregar la propiedad para evitar el error
   });
 
-  // Manejo de cambios en los campos de texto
-  const handleTextChange = (lang: string, field: string, value: string) => {
+  // ✅ Manejo de cambios en los inputs
+  const handleTextChange = (
+    lang: keyof FormDataType,
+    field: keyof LanguageData,
+    value: string
+  ) => {
     setFormData((prev) => ({
       ...prev,
-      [lang]: { ...prev[lang], [field]: value },
+      [lang]: {
+        ...(prev[lang] as LanguageData),
+        [field]: value,
+      },
     }));
+  };
 
-    if (lang === "Español") {
-      // Traducción asincrónica sin bloquear el onChange
-      setTimeout(async () => {
-        const englishTranslation = await translateText(value, "en");
-        const portugueseTranslation = await translateText(value, "pt");
+  // ✅ Manejo de traducción de los textos
+  const handleTranslate = async (sourceLang: keyof FormDataType) => {
+    const updatedData = { ...formData };
 
-        setFormData((prev) => ({
-          ...prev,
-          Inglés: { ...prev.Inglés, [field]: englishTranslation },
-          Portugués: { ...prev.Portugués, [field]: portugueseTranslation },
-        }));
-      }, 500); // Pequeño retraso para evitar múltiples llamadas innecesarias
+    for (const field of [
+      "name",
+      "country",
+      "job_title",
+      "description",
+    ] as const) {
+      const value = (formData[sourceLang] as LanguageData)[field];
+
+      for (const targetLang of ["Español", "Inglés", "Portugués"] as const) {
+        if (targetLang !== sourceLang) {
+          updatedData[targetLang][field] = await translateText(
+            value,
+            sourceLang === "Español"
+              ? "es"
+              : sourceLang === "Inglés"
+              ? "en"
+              : "pt",
+            targetLang === "Español"
+              ? "es"
+              : targetLang === "Inglés"
+              ? "en"
+              : "pt"
+          );
+        }
+      }
+    }
+
+    setFormData(updatedData);
+  };
+
+  // ✅ Manejo del envío de datos a la API
+  const handleSubmit = async () => {
+    console.log("📌 Datos a enviar al backend:", formData);
+
+    try {
+      const response = await fetch("/api/addClient", {
+        method: "POST",
+        body: JSON.stringify(formData),
+        headers: { "Content-Type": "application/json" },
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        alert("Cliente agregado con éxito");
+      } else {
+        alert(`Error al agregar cliente: ${result.error}`);
+      }
+    } catch (error) {
+      console.error("⚠️ Error en la solicitud:", error);
+      alert("Error en la conexión con el servidor");
     }
   };
-  // Manejo de cambios en email
-  const handleEmailChange = (value: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      email: value, // Se actualiza para todos los idiomas
-    }));
-  };
+  const handleUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]; // Obtiene el primer archivo seleccionado
+    if (!file) return;
 
-  // Manejo de cambios en la imagen
-  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0] || null;
-    if (file) {
-      setFormData((prev) => ({
-        ...prev,
-        image: file, // La imagen se mantiene igual para todos los idiomas
-      }));
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      const response = await fetch("/api/uploadMedia", {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await response.json();
+      if (data.url) {
+        setFormData((prev) => ({ ...prev, media_url: data.url })); // ✅ Guardar la URL del archivo
+      }
+    } catch (error) {
+      console.error("Error al subir archivo:", error);
     }
   };
 
   return (
-    <FormComponent
-      title={`Cliente (${language})`}
-      apiEndpoint="/api/addClient"
-      fields={[
-        {
-          name: "name",
-          type: "text",
-          placeholder: "Nombre",
-          value: formData[language].name,
-          onChange: (
-            e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-          ) => handleTextChange(language, "name", e.target.value),
-        },
-        {
-          name: "country",
-          type: "text",
-          placeholder: "País",
-          value: formData[language].country,
-          onChange: (
-            e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-          ) => handleTextChange(language, "country", e.target.value),
-        },
-        {
-          name: "job_title",
-          type: "text",
-          placeholder: "Puesto",
-          value: formData[language].job_title,
-          onChange: (
-            e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-          ) => handleTextChange(language, "job_title", e.target.value),
-        },
-        {
-          name: "description",
-          type: "text",
-          placeholder: "Descripción",
-          value: formData[language].description,
-          onChange: (
-            e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-          ) => handleTextChange(language, "description", e.target.value),
-        },
-      ]}
-      file={formData.image}
-      onFileChange={handleImageUpload}
-    />
+    <div className="p-6">
+      {/* ✅ HEADER DE IDIOMAS */}
+      <div className="flex space-x-4 mb-4 border-b pb-2">
+        {(["Español", "Inglés", "Portugués"] as const).map((lang) => (
+          <button
+            key={lang}
+            onClick={() => setSelectedLanguage(lang)}
+            className={`px-4 py-2 ${
+              selectedLanguage === lang
+                ? "bg-blue-500 text-white"
+                : "bg-gray-200"
+            } rounded-md`}
+          >
+            {lang}
+          </button>
+        ))}
+      </div>
+
+      <FormComponent
+        title={selectedLanguage}
+        formData={formData[selectedLanguage] as LanguageData}
+        onChange={(field, value) =>
+          handleTextChange(selectedLanguage, field, value)
+        }
+      />
+      {/* ✅ INPUT PARA SUBIR ARCHIVOS */}
+      <input type="file" accept="image/*,video/*" onChange={handleUpload} />
+      {formData.media_url && (
+        <p className="text-sm text-gray-600">
+          Archivo subido: {formData.media_url}
+        </p>
+      )}
+
+      <button
+        onClick={() => handleTranslate(selectedLanguage)}
+        className="bg-green-500 text-white px-4 py-2 rounded-md mr-2"
+      >
+        Traducir desde {selectedLanguage}
+      </button>
+
+      <button
+        onClick={handleSubmit} // ✅ Se corrige la llamada sin pasar formData
+        className="bg-blue-500 text-white px-4 py-2 rounded-md"
+      >
+        Guardar Cliente
+      </button>
+    </div>
   );
 };
 
-export default ClientForm;
+export default ClientsForm;
