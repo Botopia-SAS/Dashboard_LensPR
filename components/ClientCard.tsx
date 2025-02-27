@@ -1,6 +1,13 @@
 "use client";
 import { useState } from "react";
 import { ClientData } from "@/types/clients"; // Ajusta la ruta según tu proyecto
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faChevronLeft,
+  faChevronRight,
+  faTrash,
+  faPenToSquare,
+} from "@fortawesome/free-solid-svg-icons";
 
 interface Client {
   id: string;
@@ -61,18 +68,29 @@ export default function ClientCard({
 
   return (
     <div className="relative border rounded shadow p-4 w-full max-w-sm">
-      {/* Botón de eliminar en la esquina superior derecha */}
-      <button
-        onClick={() => onDelete(client.id)}
-        className="absolute top-2 right-2 text-red-500 hover:text-red-700"
-      >
-        Eliminar
-      </button>
+      {/* Contenedor de íconos en la esquina superior derecha */}
+      <div className="absolute top-2 right-2 flex items-center gap-3">
+        {/* Ícono de caneca (eliminar) */}
+        <button
+          onClick={() => onDelete(client.id)}
+          className="text-black hover:text-red-700"
+        >
+          <FontAwesomeIcon icon={faTrash} />
+        </button>
+        {/* Ícono de lápiz (editar) */}
+        <button
+          onClick={() => onEdit(client, currentLang)}
+          className="text-black hover:text-blue-900"
+        >
+          <FontAwesomeIcon icon={faPenToSquare} />
+        </button>
+      </div>
 
       {/* Flechas para cambiar idioma */}
-      <div className="flex justify-between items-center mb-2">
-        <button onClick={handlePrevLang} className="text-gray-600">
-          &larr;
+      <div className="flex justify-between items-center mb-2 mt-6">
+        {" "}
+        <button onClick={handlePrevLang} className="text-gray-600 text-xl">
+          <FontAwesomeIcon icon={faChevronLeft} />{" "}
         </button>
         <span className="font-bold">
           {currentLang === "ES"
@@ -80,9 +98,9 @@ export default function ClientCard({
             : currentLang === "EN"
             ? "Inglés"
             : "Portugués"}
-        </span>
-        <button onClick={handleNextLang} className="text-gray-600">
-          &rarr;
+        </span>{" "}
+        <button onClick={handleNextLang} className="text-gray-600 text-xl">
+          <FontAwesomeIcon icon={faChevronRight} />{" "}
         </button>
       </div>
 
@@ -110,14 +128,6 @@ export default function ClientCard({
           />
         </div>
       )}
-
-      {/* Botón de editar idioma actual */}
-      <button
-        onClick={() => onEdit(client, currentLang)}
-        className="bg-blue-500 text-white px-3 py-1 rounded"
-      >
-        Editar {currentLang}
-      </button>
     </div>
   );
 }

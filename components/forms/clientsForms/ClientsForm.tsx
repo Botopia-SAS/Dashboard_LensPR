@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import FormComponent from "../FormComponent"; // Asegúrate de la ruta correcta
 import FileUpload from "@/components/FileUpload";
 
@@ -37,9 +37,11 @@ const translateText = async (
 };
 interface ClientsFormProps {
   language: string;
+  initialData?: FormDataType; // si estamos editando
+  onSubmit?: (data: FormDataType, isEdit: boolean) => void; // callback para el padre
 }
 
-const ClientsForm: React.FC<ClientsFormProps> = ({ language }) => {
+const ClientsForm: React.FC<ClientsFormProps> = ({ language, initialData }) => {
   const [selectedLanguage, setSelectedLanguage] =
     useState<keyof FormDataType>("Español");
   const [formData, setFormData] = useState<FormDataType>({
@@ -48,7 +50,12 @@ const ClientsForm: React.FC<ClientsFormProps> = ({ language }) => {
     Portugués: { name: "", country: "", job_title: "", description: "" },
     media_url: "", // ✅ Agregar la propiedad para evitar el error
   });
-
+  // Si hay initialData, al montar (o si cambia) lo ponemos en el state
+  useEffect(() => {
+    if (initialData) {
+      setFormData(initialData);
+    }
+  }, [initialData]);
   // ✅ Manejo de cambios en los inputs
   const handleTextChange = (
     lang: keyof FormDataType,
