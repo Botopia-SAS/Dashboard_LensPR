@@ -1,6 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import FormComponent from "../FormComponent"; // Asegúrate de la ruta correcta
+import FileUpload from "@/components/FileUpload";
 
 type LanguageData = {
   name: string;
@@ -34,8 +35,11 @@ const translateText = async (
     return text;
   }
 };
+interface ClientsFormProps {
+  language: string;
+}
 
-const ClientsForm: React.FC = () => {
+const ClientsForm: React.FC<ClientsFormProps> = ({ language }) => {
   const [selectedLanguage, setSelectedLanguage] =
     useState<keyof FormDataType>("Español");
   const [formData, setFormData] = useState<FormDataType>({
@@ -117,47 +121,63 @@ const ClientsForm: React.FC = () => {
       alert("Error en la conexión con el servidor");
     }
   };
-  const handleUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0]; // Obtiene el primer archivo seleccionado
+  const handleUpload = async (file: File) => {
+    // ✅ Ahora recibe un File directamente
     if (!file) return;
 
-    const formData = new FormData();
-    formData.append("file", file);
+    const formDataUpload = new FormData();
+    formDataUpload.append("file", file);
+    formDataUpload.append(
+      "upload_preset",
+      process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET!
+    );
 
     try {
-      const response = await fetch("/api/uploadMedia", {
-        method: "POST",
-        body: formData,
-      });
+      const response = await fetch(
+        `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/upload`,
+        {
+          method: "POST",
+          body: formDataUpload,
+        }
+      );
 
       const data = await response.json();
-      if (data.url) {
-        setFormData((prev) => ({ ...prev, media_url: data.url })); // ✅ Guardar la URL del archivo
+      console.log("📌 Respuesta de Cloudinary:", data); // 🔍 Muestra toda la respuesta en la consola
+
+      if (data.secure_url) {
+        console.log("✅ Archivo subido con URL:", data.secure_url);
+        setFormData((prev) => ({ ...prev, media_url: data.secure_url }));
+      } else {
+        console.error("⚠️ Error: No se recibió una URL en la respuesta", data);
       }
     } catch (error) {
-      console.error("Error al subir archivo:", error);
+      console.error("❌ Error al subir archivo:", error);
     }
   };
 
   return (
     <div className="p-6">
       {/* ✅ HEADER DE IDIOMAS */}
-      <div className="flex space-x-4 mb-4 border-b pb-2">
-        {(["Español", "Inglés", "Portugués"] as const).map((lang) => (
-          <button
-            key={lang}
-            onClick={() => setSelectedLanguage(lang)}
-            className={`px-4 py-2 ${
-              selectedLanguage === lang
-                ? "bg-blue-500 text-white"
-                : "bg-gray-200"
-            } rounded-md`}
-          >
-            {lang}
-          </button>
-        ))}
+      <div>
+        <div className="flex space-x-4 mb-4 border-b border-gray-300 pb-3 bg-white  px-6 py-4">
+          {(["Español", "Inglés", "Portugués"] as const).map((lang) => (
+            <button
+              key={lang}
+              onClick={() => setSelectedLanguage(lang)}
+              className={`px-4 py-2 font-arsenal transition-colors duration-300 rounded-md ${
+                selectedLanguage === lang
+                  ? "bg-gray-200 shadow-md"
+                  : "text-gray-700 hover:bg-gray-300"
+              }`}
+            >
+              {lang}
+            </button>
+          ))}
+        </div>
+        <h1 className="text-3xl font-arsenal mb-6">
+          Gestión de Clientes - {selectedLanguage}
+        </h1>
       </div>
-
       <FormComponent
         title={selectedLanguage}
         formData={formData[selectedLanguage] as LanguageData}
@@ -165,24 +185,27 @@ const ClientsForm: React.FC = () => {
           handleTextChange(selectedLanguage, field, value)
         }
       />
-      {/* ✅ INPUT PARA SUBIR ARCHIVOS */}
-      <input type="file" accept="image/*,video/*" onChange={handleUpload} />
-      {formData.media_url && (
-        <p className="text-sm text-gray-600">
-          Archivo subido: {formData.media_url}
-        </p>
-      )}
+      {/* ✅ SECCIÓN PARA SUBIR ARCHIVOS */}
+      <div className="mt-6">
+        <FileUpload onFileUpload={(file) => handleUpload(file)} />
+      </div>
 
       <button
         onClick={() => handleTranslate(selectedLanguage)}
-        className="bg-green-500 text-white px-4 py-2 rounded-md mr-2"
+        className="bg-black text-white px-4 py-2 rounded-md mr-2 
+             transition-all duration-300 ease-in-out 
+             hover:bg-white hover:text-black hover:shadow-md 
+             active:scale-95 mt-10"
       >
         Traducir desde {selectedLanguage}
       </button>
 
       <button
         onClick={handleSubmit} // ✅ Se corrige la llamada sin pasar formData
-        className="bg-blue-500 text-white px-4 py-2 rounded-md"
+        className="bg-black text-white px-4 py-2 rounded-md mr-2 
+        transition-all duration-300 ease-in-out 
+        hover:bg-white hover:text-black hover:shadow-md 
+        active:scale-95"
       >
         Guardar Cliente
       </button>

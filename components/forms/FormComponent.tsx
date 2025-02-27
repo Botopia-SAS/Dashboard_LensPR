@@ -25,20 +25,25 @@ const FormComponent: React.FC<FormComponentProps> = ({
 }) => {
   return (
     <div className="p-4 border rounded-lg mb-4">
-      <h2 className="text-xl font-bold mb-2">{title}</h2>
+      <h2 className="text-xl font-arsenal mb-2">{title}</h2>
 
-      {(["name", "country", "job_title", "description"] as const).map(
-        (field) => (
-          <input
-            key={field}
-            type="text"
-            placeholder={`${field} en ${title}`}
-            value={formData[field as keyof typeof formData]}
-            onChange={(e) => onChange(field, e.target.value)} // ✅ Tipo corregido
-            className="block w-full mb-2 p-2 border"
-          />
-        )
-      )}
+      {(
+        [
+          { label: "Nombre", key: "name" },
+          { label: "País", key: "country" },
+          { label: "Título del trabajo", key: "job_title" },
+          { label: "Descripción", key: "description" },
+        ] as const
+      ).map(({ label, key }) => (
+        <input
+          key={key}
+          type="text"
+          placeholder={`${label} en ${title}`}
+          value={formData[key]}
+          onChange={(e) => onChange(key, e.target.value)}
+          className="block w-full mb-2 p-2 border"
+        />
+      ))}
     </div>
   );
 };

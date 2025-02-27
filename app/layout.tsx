@@ -11,7 +11,6 @@ import {
   SignedOut,
 } from "@clerk/nextjs";
 import { Arsenal } from "next/font/google";
-import Header from "@/components/Header";
 
 const arsenal = Arsenal({
   subsets: ["latin"],
