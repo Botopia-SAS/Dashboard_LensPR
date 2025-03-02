@@ -1,4 +1,3 @@
-// components/ui/Modal.tsx
 "use client";
 import React from "react";
 
@@ -9,21 +8,34 @@ interface ModalProps {
 }
 
 const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children }) => {
-  if (!isOpen) return null; // Si no está abierto, no renderiza nada
+  if (!isOpen) return null;
 
   return (
+    // Contenedor fijo que cubre toda la ventana
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-      {/* Contenedor del contenido del modal */}
-      <div className="bg-white rounded p-6 relative max-w-lg w-full mx-2">
+      {/* Caja donde se muestra el contenido del modal */}
+      <div
+        className="
+          relative
+          bg-white
+          rounded
+          p-6
+          w-full
+          max-w-lg
+          mx-4
+          max-h-[90vh]
+          overflow-y-auto
+        "
+      >
         {/* Botón de cerrar */}
         <button
           onClick={onClose}
-          className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
+          className="absolute top-2 right-2 text-gray-500 hover:text-gray-700 "
         >
           X
         </button>
 
-        {/* Aquí va el contenido que metamos como children */}
+        {/* Contenido del modal */}
         {children}
       </div>
     </div>

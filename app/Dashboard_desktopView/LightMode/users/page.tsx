@@ -35,7 +35,7 @@ export default function ChangeUserRole() {
 
   return (
     <div className="max-w-lg mx-auto p-6 bg-white shadow-lg rounded-lg">
-      <h2 className="text-xl font-bold mb-4">Cambiar Rol de Usuario</h2>
+      <h2 className="text-xl font-arsenal mb-4">Cambiar Rol de Usuario</h2>
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         {/* Campo para el correo del usuario */}
@@ -69,7 +69,7 @@ export default function ChangeUserRole() {
         {/* Botón de Enviar */}
         <button
           type="submit"
-          className="bg-blue-600 text-white p-2 rounded hover:bg-blue-700 transition"
+          className="bg-blue-600 text-white p-2 rounded hover:bg-blue-700 transition font-arsenal"
         >
           Cambiar Rol
         </button>

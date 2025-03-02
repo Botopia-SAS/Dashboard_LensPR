@@ -15,3 +15,18 @@ export interface ClientData {
   description_portuguese: string | null;
   media_url: string | null;
 }
+
+// types/clients.ts
+
+export interface LanguageDataClients {
+  name: string;
+  job_title: string;
+  description: string;
+}
+
+export interface FormDataClients {
+  Español: LanguageDataClients;
+  Inglés: LanguageDataClients;
+  Portugués: LanguageDataClients;
+  media_url: string;
+}

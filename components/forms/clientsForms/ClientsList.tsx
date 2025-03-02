@@ -19,7 +19,7 @@ const ClientsList = () => {
   }, []);
 
   const fetchClients = async () => {
-    const res = await fetch("/api/getClients");
+    const res = await fetch("/api/clients/getClients");
     const data = await res.json();
     setClients(data);
   };
@@ -31,7 +31,7 @@ const ClientsList = () => {
   const handleSave = async () => {
     if (!editingClient) return;
 
-    const res = await fetch("/api/updateClient", {
+    const res = await fetch("/api/clients/updateClient", {
       method: "POST",
       body: JSON.stringify(editingClient),
       headers: { "Content-Type": "application/json" },
@@ -63,7 +63,7 @@ const ClientsList = () => {
         </thead>
         <tbody>
           {clients.map((client) => (
-            <tr key={client.id} className="text-center">
+            <tr key={client.id} className="text-center font-arsenal">
               <td className="border px-4 py-2">
                 {editingClient?.id === client.id ? (
                   <input
@@ -95,14 +95,14 @@ const ClientsList = () => {
                 {editingClient?.id === client.id ? (
                   <button
                     onClick={handleSave}
-                    className="bg-green-500 text-white px-4 py-2 rounded-md"
+                    className="bg-green-500 text-white px-4 py-2 rounded-md font-arsenal"
                   >
                     Guardar
                   </button>
                 ) : (
                   <button
                     onClick={() => handleEdit(client)}
-                    className="bg-blue-500 text-white px-4 py-2 rounded-md"
+                    className="bg-blue-500 text-white px-4 py-2 rounded-md font-arsenal"
                   >
                     Editar
                   </button>

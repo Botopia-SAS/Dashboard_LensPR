@@ -63,7 +63,7 @@ const FileUpload = ({
           onChange={handleFileChange}
           className="hidden"
         />
-        <p className="text-gray-500 text-sm">
+        <p className="text-gray-500 text-sm font-arsenal">
           {dragging
             ? "Suelta el archivo aquí"
             : "Arrastra y suelta un archivo o haz clic para subir"}

@@ -5,7 +5,7 @@ import {
   FaUsers,
   FaNewspaper,
   FaUserLock,
-  FaImages,
+  FaCalendar,
   FaBars,
   FaTimes,
 } from "react-icons/fa";
@@ -29,14 +29,14 @@ const Sidebar = () => {
     },
 
     {
+      name: "Events",
+      icon: <FaCalendar />,
+      path: "/Dashboard_desktopView/LightMode/events",
+    },
+    {
       name: "Users",
       icon: <FaUserLock />, // Cambia el icono si lo deseas
       path: "/Dashboard_desktopView/LightMode/users",
-    },
-    {
-      name: "Gallery",
-      icon: <FaImages />,
-      path: "/Dashboard_desktopView/LightMode/gallery",
     },
   ];
 
