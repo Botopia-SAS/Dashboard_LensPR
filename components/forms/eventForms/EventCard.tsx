@@ -44,16 +44,19 @@ export default function EventsCard({
 
   const getFieldByLang = (field: string) => {
     if (currentLang === "ES") {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       return (eventItem as any)[`${field}_spanish`];
     } else if (currentLang === "EN") {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       return (eventItem as any)[`${field}_english`];
     } else {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       return (eventItem as any)[`${field}_portuguese`];
     }
   };
 
   return (
-    <div className="relative w-full border rounded shadow p-4 flex">
+    <div className="relative w-full border rounded shadow p-4 flex flex-col md:flex-row z-10">
       {/* Botones top-right */}
       <div className="absolute top-2 right-2 flex space-x-3">
         <button
@@ -71,7 +74,7 @@ export default function EventsCard({
       </div>
 
       {/* Izquierda */}
-      <div className="w-1/3 pr-4">
+      <div className="w-full md:w-1/3 pr-4">
         {/* Tabs de idioma */}
         <div className="flex space-x-2 mb-2">
           <button
@@ -106,39 +109,39 @@ export default function EventsCard({
           </button>
         </div>
 
-        <h3 className="font-semibold">Nombre:</h3>
+        <h3 className="font-arsenal">Nombre:</h3>
         <p className="mb-2">{getFieldByLang("name") || "Sin nombre"}</p>
 
-        <h3 className="font-semibold">Fecha y hora:</h3>
+        <h3 className="font-arsenal">Fecha y hora:</h3>
         <p className="mb-2">
           {eventItem.date_time
             ? new Date(eventItem.date_time).toLocaleString()
             : "No definida"}
         </p>
 
-        <h3 className="font-semibold">Ubicación:</h3>
+        <h3 className="font-arsenal">Ubicación:</h3>
         <p className="mb-2">{getFieldByLang("location") || "Sin ubicación"}</p>
 
-        <h3 className="font-semibold">Categoría:</h3>
+        <h3 className="font-arsenal">Categoría:</h3>
         <p>{getFieldByLang("category") || "Sin categoría"}</p>
       </div>
 
       {/* Centro: Descripción */}
-      <div className="w-1/3 px-2">
-        <h3 className="font-semibold mb-1">Descripción:</h3>
+      <div className="w-full md:w-1/3 px-2">
+        <h3 className="font-arsenal mb-1">Descripción:</h3>
         <div className="border p-2 h-[100px] overflow-y-auto">
           {getFieldByLang("description") || "Sin descripción"}
         </div>
 
-        <h3 className="font-semibold mt-2">Duración:</h3>
+        <h3 className="font-arsenal mt-2">Duración:</h3>
         <p>
           {eventItem.duration ? `${eventItem.duration} horas` : "No definida"}
         </p>
 
-        <h3 className="font-semibold mt-2">Costo:</h3>
+        <h3 className="font-arsenal mt-2">Costo:</h3>
         <p>{eventItem.cost || "Gratis"}</p>
 
-        <h3 className="font-semibold mt-2">Enlace de registro:</h3>
+        <h3 className="font-arsenal mt-2">Enlace de registro:</h3>
         {eventItem.register_link ? (
           <a
             href={eventItem.register_link}
@@ -154,12 +157,12 @@ export default function EventsCard({
       </div>
 
       {/* Derecha: Imagen */}
-      <div className="w-1/3 pl-4 flex flex-col justify-center items-center">
+      <div className="w-full md:w-1/3 pl-4 flex flex-col justify-center items-center">
         {eventItem.media_url ? (
           <img
             src={eventItem.media_url}
             alt="Imagen del evento"
-            className="w-24 h-auto object-cover border"
+            className="w-20 md:w-24 h-auto object-cover border"
           />
         ) : (
           <div className="border p-2 text-gray-500 text-sm font-arsenal">

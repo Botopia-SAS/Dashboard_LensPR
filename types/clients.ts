@@ -1,4 +1,36 @@
 // types/clients.ts
+export interface ClientItem {
+  id: string;
+  name_spanish: string;
+  job_title_spanish: string;
+  description_spanish: string;
+  name_english: string;
+  job_title_english: string;
+  description_english: string;
+  name_portuguese: string;
+  job_title_portuguese: string;
+  description_portuguese: string;
+  media_url: string;
+}
+
+export interface ClientsRecord {
+  id: string;
+  name_spanish?: string;
+  job_title_spanish?: string;
+  description_spanish?: string;
+
+  name_english?: string;
+  job_title_english?: string;
+  description_english?: string;
+
+  name_portuguese?: string;
+  job_title_portuguese?: string;
+  description_portuguese?: string;
+
+  media_url?: string;
+  // ... cualquier otro campo
+}
+
 export interface ClientData {
   id: string;
   name_spanish: string | null; // o string | undefined

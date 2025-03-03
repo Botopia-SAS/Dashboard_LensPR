@@ -22,7 +22,7 @@ export async function POST(req: Request) {
     const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}`;
 
     // Subir el archivo a Supabase Storage
-    const { data, error } = await supabase.storage
+    const { error } = await supabase.storage
       .from("clients-media")
       .upload(fileName, file);
 

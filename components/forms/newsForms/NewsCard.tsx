@@ -35,16 +35,19 @@ export default function NewsCard({
 
   const getFieldByLang = (fieldBase: string) => {
     if (currentLang === "ES") {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       return (newsItem as any)[`${fieldBase}_spanish`];
     } else if (currentLang === "EN") {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       return (newsItem as any)[`${fieldBase}_english`];
     } else {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       return (newsItem as any)[`${fieldBase}_portuguese`];
     }
   };
 
   return (
-    <div className="relative w-full border rounded shadow p-4 flex">
+    <div className="relative w-full border rounded shadow p-4 flex flex-col md:flex-row z-10">
       {/* Botones arriba derecha */}
       <div className="absolute top-2 right-2 flex space-x-3">
         <button
@@ -62,14 +65,14 @@ export default function NewsCard({
       </div>
 
       {/* Sección izquierda: título, editorial */}
-      <div className="w-1/3 pr-4">
+      <div className="w-full md:w-1/3 pr-4">
         {/* Tabs de idiomas */}
         <div className="flex space-x-2 mb-2">
           <button
             onClick={() => setCurrentLang("ES")}
             className={`px-2 py-1 rounded ${
               currentLang === "ES"
-                ? "bg-gray-200 font-bold"
+                ? "bg-gray-200 font-arsenal"
                 : "hover:bg-gray-100"
             }`}
           >
@@ -79,7 +82,7 @@ export default function NewsCard({
             onClick={() => setCurrentLang("EN")}
             className={`px-2 py-1 rounded ${
               currentLang === "EN"
-                ? "bg-gray-200 font-bold"
+                ? "bg-gray-200 font-arsenal"
                 : "hover:bg-gray-100"
             }`}
           >
@@ -89,35 +92,35 @@ export default function NewsCard({
             onClick={() => setCurrentLang("PT")}
             className={`px-2 py-1 rounded ${
               currentLang === "PT"
-                ? "bg-gray-200 font-bold"
+                ? "bg-gray-200 font-arsenal"
                 : "hover:bg-gray-100"
             }`}
           >
             Portugués
           </button>
         </div>
-        <h3 className="font-semibold">Título:</h3>
+        <h3 className="font-arsenal">Título:</h3>
         <p className="mb-3">{getFieldByLang("title") || "Sin Título"}</p>
 
-        <h3 className="font-semibold">Editorial:</h3>
+        <h3 className="font-arsenal">Editorial:</h3>
         <p>{getFieldByLang("editorial") || "Sin Editorial"}</p>
       </div>
 
       {/* Sección central: Descripción con scrollbar */}
-      <div className="w-1/3 px-2">
-        <h3 className="font-semibold mb-1">Descripción:</h3>
+      <div className="w-full md:w-1/3 px-2">
+        <h3 className="font-arsenal mb-1">Descripción:</h3>
         <div className="border p-2 h-[150px] overflow-y-auto">
           {getFieldByLang("description") || "Sin descripción"}
         </div>
       </div>
 
       {/* Sección derecha: Imagen */}
-      <div className="w-1/3 pl-4 flex flex-col justify-center items-center">
+      <div className="w-full md:w-1/3 pl-4 flex flex-col justify-center items-center">
         {newsItem.media_url ? (
           <img
             src={newsItem.media_url}
             alt="Imagen de la noticia"
-            className="w-32 h-auto object-cover border"
+            className="w-20 md:w-32 h-auto object-cover border"
           />
         ) : (
           <div className="border p-2 text-gray-500 text-sm font-arsenal">

@@ -4,7 +4,23 @@ import Modal from "@/components/ui/Modal";
 import EventsForm from "@/components/forms/eventForms/EventsForm";
 import EventsCard from "@/components/forms/eventForms/EventCard";
 
-type Language = "ES" | "EN" | "PT";
+interface LangEvents {
+  name: string;
+  location: string;
+  category: string;
+  description: string;
+}
+
+interface FormDataEvents {
+  Español: LangEvents;
+  Inglés: LangEvents;
+  Portugués: LangEvents;
+  media_url: string;
+  date_time: string;
+  duration: number;
+  cost: string;
+  register_link: string;
+}
 
 interface EventsRecord {
   id: string;
@@ -86,13 +102,16 @@ export default function EventsPage() {
   };
 
   // Editar
-  const handleEdit = (item: EventsRecord, lang: Language) => {
+  const handleEdit = (item: EventsRecord) => {
     setEditingEvent(item);
     setShowModal(true);
   };
 
   // Callback form
-  const handleFormSubmit = async (formData: any, isEdit: boolean) => {
+  const handleFormSubmit = async (
+    formData: FormDataEvents,
+    isEdit: boolean
+  ) => {
     try {
       if (!isEdit) {
         // Crear
@@ -197,7 +216,7 @@ export default function EventsPage() {
       </Modal>
 
       {/* Listado en vertical */}
-      <div className="space-y-4">
+      <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
         {filteredEvents.map((item) => (
           <EventsCard
             key={item.id}

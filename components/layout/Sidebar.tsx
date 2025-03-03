@@ -10,7 +10,7 @@ import {
   FaTimes,
 } from "react-icons/fa";
 import { motion } from "framer-motion";
-import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/nextjs"; // Importar Clerk
+import { SignedIn, SignedOut, UserButton } from "@clerk/nextjs"; // Importar Clerk
 
 const Sidebar = () => {
   const [isExpanded, setIsExpanded] = useState(false);
@@ -44,7 +44,9 @@ const Sidebar = () => {
     <>
       {/* 🔹 Sidebar en pantallas grandes (con expansión al pasar el mouse) */}
       <motion.aside
-        className="hidden lg:flex fixed left-0 top-0 h-full border-r-2  bg-white shadow-lg flex-col py-6 px-4 font-arsenal text-xl transition-all text-black"
+        className={
+          "hidden lg:flex fixed left-0 top-0 h-full border-r-2  bg-white shadow-lg flex-col py-6 px-4 font-arsenal text-xl transition-all text-black "
+        }
         initial={{ width: 80 }}
         animate={{ width: isExpanded ? 180 : 100 }}
         transition={{ duration: 0.4, ease: "easeInOut" }}
@@ -115,7 +117,9 @@ const Sidebar = () => {
 
       {/* 🔹 Botón de menú en móviles */}
       <button
-        className="lg:hidden fixed top-4 left-4  text-grey-400 p-3 rounded-lg shadow-md z-50"
+        className={
+          "lg:hidden fixed top-4 left-4  text-grey-400 p-3 rounded-lg shadow-md font-arsenal "
+        }
         onClick={() => setIsMobileOpen(true)}
       >
         <FaBars size={20} />
@@ -123,9 +127,9 @@ const Sidebar = () => {
 
       {/* 🔹 Sidebar en móviles como drawer */}
       {isMobileOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex">
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-80 flex font-arsenal">
           <motion.aside
-            className="w-[250px] bg-white shadow-lg flex flex-col p-6 h-full"
+            className="w-[250px] bg-white shadow-lg flex flex-col p-6 h-full font-arsenal"
             initial={{ x: -250 }}
             animate={{ x: 0 }}
             transition={{ duration: 0.3 }}

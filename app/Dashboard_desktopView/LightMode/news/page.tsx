@@ -4,7 +4,18 @@ import Modal from "@/components/ui/Modal";
 import NewsForm from "@/components/forms/newsForms/NewsForm";
 import NewsCard from "@/components/forms/newsForms/NewsCard"; // Ajusta la ruta si tu NewsCard está en el mismo folder
 
-type Language = "ES" | "EN" | "PT";
+export interface LanguageDataNews {
+  title: string;
+  description: string;
+  editorial: string;
+}
+
+export interface FormDataNews {
+  Español: LanguageDataNews;
+  Inglés: LanguageDataNews;
+  Portugués: LanguageDataNews;
+  media_url: string; // la URL final de Cloudinary
+}
 
 interface NewsRecord {
   id: string;
@@ -80,13 +91,13 @@ export default function NewsPage() {
   };
 
   // Editar
-  const handleEdit = (item: NewsRecord, lang: Language) => {
+  const handleEdit = (item: NewsRecord) => {
     setEditingNews(item);
     setShowModal(true);
   };
 
   // Callback del formulario
-  const handleFormSubmit = async (formData: any, isEdit: boolean) => {
+  const handleFormSubmit = async (formData: FormDataNews, isEdit: boolean) => {
     try {
       if (!isEdit) {
         // Crear
@@ -151,7 +162,7 @@ export default function NewsPage() {
 
   return (
     <div className="p-6">
-      <h1 className="text-3xl font-arsenal mb-4">Gestión de Noticias</h1>
+      <h1 className="text-3xl font-arsenal mb-4 z-20">Gestión de Noticias</h1>
 
       <input
         type="text"
@@ -185,15 +196,13 @@ export default function NewsPage() {
       </Modal>
 
       {/* LISTADO DE NOTICIAS */}
-      <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 z-10">
         {filteredNews.map((item) => (
           <NewsCard
             key={item.id}
             newsItem={item}
             onDelete={handleDelete}
-            onEdit={(record: NewsRecord, lang: Language) =>
-              handleEdit(record, lang)
-            }
+            onEdit={(record: NewsRecord) => handleEdit(record)}
           />
         ))}
       </div>

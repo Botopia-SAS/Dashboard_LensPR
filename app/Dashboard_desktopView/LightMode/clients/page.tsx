@@ -3,26 +3,7 @@ import { useEffect, useState } from "react";
 import Modal from "@/components/ui/Modal";
 import ClientsForm from "@/components/forms/clientsForms/ClientsForm";
 import ClientsCard from "@/components/forms/clientsForms/ClientCard";
-
-type Language = "ES" | "EN" | "PT";
-
-interface ClientsRecord {
-  id: string;
-  name_spanish?: string;
-  job_title_spanish?: string;
-  description_spanish?: string;
-
-  name_english?: string;
-  job_title_english?: string;
-  description_english?: string;
-
-  name_portuguese?: string;
-  job_title_portuguese?: string;
-  description_portuguese?: string;
-
-  media_url?: string;
-  // ... cualquier otro campo
-}
+import { ClientsRecord } from "@/types/clients";
 
 export default function ClientsPage() {
   const [clients, setClients] = useState<ClientsRecord[]>([]);
@@ -83,12 +64,13 @@ export default function ClientsPage() {
   };
 
   // Editar
-  const handleEdit = (item: ClientsRecord, lang: Language) => {
+  const handleEdit = (item: ClientsRecord) => {
     setEditingClient(item);
     setShowModal(true);
   };
 
   // Guardar
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleFormSubmit = async (formData: any, isEdit: boolean) => {
     try {
       if (!isEdit) {
@@ -188,13 +170,13 @@ export default function ClientsPage() {
       </Modal>
 
       {/* Listado con 1 item por fila */}
-      <div className="space-y-4">
+      <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
         {filteredClients.map((item) => (
           <ClientsCard
             key={item.id}
             clientItem={item}
             onDelete={handleDelete}
-            onEdit={handleEdit} // pasamos la misma función
+            onEdit={(item) => handleEdit(item)} // pasamos la misma función
           />
         ))}
       </div>

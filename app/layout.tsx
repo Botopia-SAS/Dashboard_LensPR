@@ -1,31 +1,15 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "../context/ThemeContext";
 import Sidebar from "../components/layout/Sidebar";
 import PageWrapper from "@/components/layout/PageWrapper";
-import {
-  ClerkProvider,
-  SignInButton,
-  SignedIn,
-  SignedOut,
-} from "@clerk/nextjs";
+import { ClerkProvider, SignedIn } from "@clerk/nextjs";
 import { Arsenal } from "next/font/google";
 
 const arsenal = Arsenal({
   subsets: ["latin"],
   weight: ["400", "700"],
   variable: "--font-arsenal",
-});
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
 });
 
 export const metadata: Metadata = {
@@ -47,7 +31,7 @@ export default function RootLayout({
               <ThemeProvider>
                 <div className="flex">
                   {/* Sidebar con width fijo */}
-                  <div className="fixed left-0 top-0 w-[150px] h-screen bg-gray-900 text-black">
+                  <div className="fixed left-0 top-0 h-screen w-[150px] bg-gray-900 text-black z-50">
                     <Sidebar />
                   </div>
                   {/* Contenedor principal con padding izquierdo en lugar de margen */}

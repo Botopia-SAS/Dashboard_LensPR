@@ -4,8 +4,6 @@ import FileUpload from "../../ui/FileUpload";
 import DatePicker from "react-datepicker"; // <---
 import "react-datepicker/dist/react-datepicker.css";
 
-type Language = "ES" | "EN" | "PT";
-
 interface LanguageDataEvents {
   name: string;
   location: string;
@@ -130,6 +128,7 @@ const EventsForm: React.FC<EventsFormProps> = ({
     field: keyof FormDataEvents,
     value: string | number
   ) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     setFormData((prev) => ({ ...prev, [field]: value as any }));
   };
 
