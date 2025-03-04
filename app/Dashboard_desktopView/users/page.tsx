@@ -69,7 +69,7 @@ export default function ChangeUserRole() {
         {/* Botón de Enviar */}
         <button
           type="submit"
-          className="bg-blue-600 text-white p-2 rounded hover:bg-blue-700 transition font-arsenal"
+          className="bg-black text-white p-2 rounded hover:bg-blue-700 transition font-arsenal"
         >
           Cambiar Rol
         </button>

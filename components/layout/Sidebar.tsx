@@ -11,6 +11,7 @@ import {
 } from "react-icons/fa";
 import { motion } from "framer-motion";
 import { SignedIn, SignedOut, UserButton } from "@clerk/nextjs"; // Importar Clerk
+import Link from "next/link";
 
 const Sidebar = () => {
   const [isExpanded, setIsExpanded] = useState(false);
@@ -20,23 +21,23 @@ const Sidebar = () => {
     {
       name: "Clients",
       icon: <FaUsers />,
-      path: "/Dashboard_desktopView/LightMode/clients",
+      path: "/Dashboard_desktopView/clients",
     },
     {
       name: "News",
       icon: <FaNewspaper />, // Cambia el icono si lo deseas
-      path: "/Dashboard_desktopView/LightMode/news",
+      path: "/Dashboard_desktopView/news",
     },
 
     {
       name: "Events",
       icon: <FaCalendar />,
-      path: "/Dashboard_desktopView/LightMode/events",
+      path: "/Dashboard_desktopView/events",
     },
     {
       name: "Users",
       icon: <FaUserLock />, // Cambia el icono si lo deseas
-      path: "/Dashboard_desktopView/LightMode/users",
+      path: "/Dashboard_desktopView/users",
     },
   ];
 
@@ -53,9 +54,14 @@ const Sidebar = () => {
         onMouseEnter={() => setIsExpanded(true)}
         onMouseLeave={() => setIsExpanded(false)}
       >
-        {/* Logo */}
         <div className="flex justify-center items-center mb-8 text-black">
-          <img src="/logo.jpg" alt="LensPR Logo" className="w-14 h-14" />
+          <Link href="/">
+            <img
+              src="/logo-lens.svg"
+              alt="LensPR Logo"
+              className="w-14 h-14 cursor-pointer"
+            />
+          </Link>
         </div>
 
         {/* Menú de navegación */}
