@@ -2,6 +2,8 @@
 import React, { useState, useEffect } from "react";
 import { FormDataNews, LanguageDataNews } from "../../../types/news";
 import FileUpload from "../../ui/FileUpload";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faSpinner } from "@fortawesome/free-solid-svg-icons";
 
 // Traductor opcional
 function chunkString(str: string, size: number) {
@@ -62,6 +64,7 @@ const NewsForm: React.FC<NewsFormProps> = ({
     Inglés: { title: "", description: "", editorial: "" },
     Portugués: { title: "", description: "", editorial: "" },
     media_url: "",
+    news_link: "", // ⬅ Agregamos el campo aquí
   });
 
   // Cargar datos si es edición
@@ -83,6 +86,14 @@ const NewsForm: React.FC<NewsFormProps> = ({
         ...(prev[lang] as LanguageDataNews),
         [field]: value,
       },
+    }));
+  };
+  const handleEditorialChange = (value: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      Español: { ...prev.Español, editorial: value },
+      Inglés: { ...prev.Inglés, editorial: value },
+      Portugués: { ...prev.Portugués, editorial: value },
     }));
   };
 
@@ -115,12 +126,14 @@ const NewsForm: React.FC<NewsFormProps> = ({
   };
 
   // Traducir desde el idioma seleccionado
+  const [isTranslating, setIsTranslating] = useState(false);
   const handleTranslate = async (sourceLang: keyof FormDataNews) => {
+    setIsTranslating(true); // ⬅ Activa el estado de carga
     const updated = { ...formData };
     const source =
       sourceLang === "Español" ? "es" : sourceLang === "Inglés" ? "en" : "pt";
 
-    for (const field of ["title", "description", "editorial"] as const) {
+    for (const field of ["title", "description"] as const) {
       const originalText = (updated[sourceLang] as LanguageDataNews)[field];
       for (const targetLang of ["Español", "Inglés", "Portugués"] as const) {
         if (targetLang !== sourceLang) {
@@ -139,6 +152,7 @@ const NewsForm: React.FC<NewsFormProps> = ({
       }
     }
     setFormData(updated);
+    setIsTranslating(false); // ⬅ Desactiva el estado de carga
   };
 
   // Cuando presionamos "Guardar"
@@ -147,15 +161,32 @@ const NewsForm: React.FC<NewsFormProps> = ({
     onSubmit?.(formData, isEdit);
   };
 
+  const isFormValid = () => {
+    // Revisar que todos los campos en los tres idiomas estén llenos
+    for (const lang of ["Español", "Inglés", "Portugués"] as const) {
+      const data = formData[lang];
+      if (
+        !data.title.trim() ||
+        !data.description.trim() ||
+        !data.editorial.trim()
+      ) {
+        return false; // Si algún campo está vacío, el formulario no es válido
+      }
+    }
+
+    // Verificar que los demás campos también estén completos
+    return !!formData.media_url && !!(formData.news_link ?? "").trim();
+  };
+
   return (
-    <div className="p-6 border">
+    <div className="p-6 border rounded-lg">
       {/* Botones de idioma */}
       <div className="flex space-x-4 mb-4">
         {(["Español", "Inglés", "Portugués"] as const).map((lang) => (
           <button
             key={lang}
             onClick={() => setSelectedLanguage(lang)}
-            className={`px-4 py-2 font-arsenal transition-colors duration-300 rounded-md ${
+            className={`px-4 py-2 font-arsenal transition-colors duration-300 rounded-lg ${
               selectedLanguage === lang
                 ? "bg-gray-200 shadow-md"
                 : "text-gray-700 hover:bg-gray-300"
@@ -200,9 +231,19 @@ const NewsForm: React.FC<NewsFormProps> = ({
         <textarea
           className="border p-2 w-full"
           rows={3}
-          value={(formData[selectedLanguage] as LanguageDataNews).editorial}
+          value={formData.Español.editorial} // Usamos solo el valor de Español
+          onChange={(e) => handleEditorialChange(e.target.value)}
+        />
+      </div>
+      <div className="mb-4">
+        <label className="block font-bold">Enlace de la noticia:</label>
+        <input
+          type="text"
+          className="border p-2 w-full"
+          placeholder="https://ejemplo.com"
+          value={formData.news_link}
           onChange={(e) =>
-            handleTextChange(selectedLanguage, "editorial", e.target.value)
+            setFormData((prev) => ({ ...prev, news_link: e.target.value }))
           }
         />
       </div>
@@ -210,26 +251,35 @@ const NewsForm: React.FC<NewsFormProps> = ({
       {/* Subir archivo */}
       <div className="mb-4">
         <FileUpload onFileUpload={handleUpload} />
-        {formData.media_url && (
-          <img
-            src={formData.media_url}
-            alt="Vista previa"
-            className="mt-2 w-64 h-auto object-contain"
-          />
-        )}
       </div>
+      {!isFormValid() && (
+        <p className="text-yellow-600 font-arsenal mb-2">
+          ⚠️ Debes completar todos los campos en los tres idiomas, subir una
+          imagen y agregar un enlace antes de guardar.
+        </p>
+      )}
 
       <div className="flex space-x-2">
         <button
           onClick={() => handleTranslate(selectedLanguage)}
-          className="bg-black text-white font-arsenal px-4 py-2 rounded-md"
+          className="bg-black text-white px-4 py-2 rounded-lg flex items-center justify-center"
+          disabled={isTranslating} // ⬅ Desactiva el botón mientras traduce
         >
-          Traducir desde {selectedLanguage}
+          {isTranslating ? (
+            <FontAwesomeIcon icon={faSpinner} spin className="mr-2" />
+          ) : (
+            `Traducir desde ${selectedLanguage}`
+          )}
         </button>
 
         <button
           onClick={handleSubmit}
-          className="bg-green-600 text-white font-arsenal px-4 py-2 rounded-md"
+          className={`px-4 py-2 rounded-lg font-arsenal ${
+            isFormValid()
+              ? "bg-green-600 text-white"
+              : "bg-gray-400 text-gray-700 cursor-not-allowed"
+          }`}
+          disabled={!isFormValid()} // ⬅ Deshabilita el botón si el formulario no es válido
         >
           {initialData ? "Guardar Cambios" : "Guardar Noticia"}
         </button>

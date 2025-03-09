@@ -1,4 +1,6 @@
 "use client";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faSpinner } from "@fortawesome/free-solid-svg-icons";
 import { useEffect, useState } from "react";
 import Modal from "@/components/ui/Modal";
 import ClientsForm from "@/components/forms/clientsForms/ClientsForm";
@@ -6,6 +8,8 @@ import ClientsCard from "@/components/forms/clientsForms/ClientCard";
 import { ClientsRecord } from "@/types/clients";
 
 export default function ClientsPage() {
+  const [isLoading, setIsLoading] = useState(true); // Nuevo estado de carga
+
   const [clients, setClients] = useState<ClientsRecord[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [showModal, setShowModal] = useState(false);
@@ -15,13 +19,16 @@ export default function ClientsPage() {
 
   // Obtener lista
   const fetchClients = async () => {
+    setIsLoading(true); // Inicia la carga
     try {
       const res = await fetch("/api/clients/getClients");
-      if (!res.ok) throw new Error("Error al obtener clients");
+      if (!res.ok) throw new Error("Error al obtener clientes");
       const data = await res.json();
       setClients(data);
     } catch (error) {
       console.error("Error fetchClients:", error);
+    } finally {
+      setIsLoading(false); // Finaliza la carga
     }
   };
 
@@ -135,7 +142,7 @@ export default function ClientsPage() {
   };
 
   return (
-    <div className="p-6">
+    <div className="p-6 bg-white">
       <h1 className="text-3xl font-arsenal mb-4">Gestión de Clientes</h1>
 
       <input
@@ -148,7 +155,7 @@ export default function ClientsPage() {
 
       <button
         onClick={handleCreate}
-        className="bg-black text-white px-4 py-2 rounded-full mb-4 flex items-center font-arsenal"
+        className="bg-black text-white px-4 py-2 rounded-lg mb-4 flex items-center font-arsenal"
       >
         <span className="mr-2 text-xl font-arsenal">+</span> Agregar Cliente
       </button>
@@ -169,17 +176,29 @@ export default function ClientsPage() {
         />
       </Modal>
 
-      {/* Listado con 1 item por fila */}
-      <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-        {filteredClients.map((item) => (
-          <ClientsCard
-            key={item.id}
-            clientItem={item}
-            onDelete={handleDelete}
-            onEdit={(item) => handleEdit(item)} // pasamos la misma función
+      {/* 🔄 Mostrar Spinner mientras se cargan los datos */}
+      {isLoading ? (
+        <div className="flex flex-col justify-center items-center min-h-[200px]">
+          <FontAwesomeIcon
+            icon={faSpinner}
+            spin
+            size="3x" // Aumentamos tamaño
+            className="text-gray-500"
           />
-        ))}
-      </div>
+          <p className="text-gray-500 mt-2 font-arsenal">Cargando datos...</p>
+        </div>
+      ) : (
+        <div className="grid gap-y-6 gap-x-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 mb-6">
+          {filteredClients.map((item) => (
+            <ClientsCard
+              key={item.id}
+              clientItem={item}
+              onDelete={handleDelete}
+              onEdit={(item) => handleEdit(item)}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 }

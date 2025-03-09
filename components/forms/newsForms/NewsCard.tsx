@@ -15,6 +15,7 @@ interface NewsRecord {
   editorial_english: string | undefined;
   editorial_portuguese: string | undefined;
   media_url: string | undefined;
+  news_link: string | undefined;
   // ...cualquier otro campo de "news"
 }
 
@@ -47,7 +48,7 @@ export default function NewsCard({
   };
 
   return (
-    <div className="relative w-full border rounded shadow p-4 flex flex-col md:flex-row z-10">
+    <div className="relative w-full border rounded-lg shadow p-4 flex flex-col md:flex-row z-10 mb-6">
       {/* Botones arriba derecha */}
       <div className="absolute top-2 right-2 flex space-x-3">
         <button
@@ -112,6 +113,19 @@ export default function NewsCard({
         <div className="border p-2 h-[150px] overflow-y-auto">
           {getFieldByLang("description") || "Sin descripción"}
         </div>
+        {/* Enlace a la noticia */}
+        {newsItem.news_link && (
+          <div className="mt-3">
+            <a
+              href={newsItem.news_link}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-b underline font-arsenal"
+            >
+              Leer más
+            </a>
+          </div>
+        )}
       </div>
 
       {/* Sección derecha: Imagen */}

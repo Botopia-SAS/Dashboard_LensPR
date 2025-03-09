@@ -2,6 +2,8 @@
 import React, { useState, useEffect } from "react";
 import FileUpload from "../../ui/FileUpload"; // Ajusta la ruta a tu FileUpload
 import { FormDataClients, LanguageDataClients } from "@/types/clients";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faSpinner } from "@fortawesome/free-solid-svg-icons";
 
 // Crearemos el type en la sección final
 
@@ -111,7 +113,10 @@ const ClientsForm: React.FC<ClientsFormProps> = ({
   };
 
   // Traducir
+  const [isTranslating, setIsTranslating] = useState(false);
   const handleTranslate = async (sourceLang: keyof FormDataClients) => {
+    setIsTranslating(true); // ⬅️ Activa el estado de carga
+
     const updated = { ...formData };
     const source =
       sourceLang === "Español" ? "es" : sourceLang === "Inglés" ? "en" : "pt";
@@ -135,22 +140,38 @@ const ClientsForm: React.FC<ClientsFormProps> = ({
       }
     }
     setFormData(updated);
+    setIsTranslating(false); // ⬅️ Desactiva el estado de carga
   };
 
   const handleSubmit = () => {
     const isEdit = !!initialData;
     onSubmit?.(formData, isEdit);
   };
+  const isFormValid = () => {
+    // Verificar si todos los campos de los idiomas están completos
+    for (const lang of ["Español", "Inglés", "Portugués"] as const) {
+      const data = formData[lang];
+      if (
+        !data.name.trim() ||
+        !data.job_title.trim() ||
+        !data.description.trim()
+      ) {
+        return false; // Si algún campo está vacío, el formulario no es válido
+      }
+    }
+
+    return !!formData.media_url; // Asegurar que la imagen también está presente
+  };
 
   return (
-    <div className="p-6 border">
+    <div className="p-6 border rounded-lg">
       {/* Botones de idioma */}
       <div className="flex space-x-4 mb-4">
         {(["Español", "Inglés", "Portugués"] as const).map((lang) => (
           <button
             key={lang}
             onClick={() => setSelectedLanguage(lang)}
-            className={`px-4 py-2 font-arsenal rounded-md transition-colors duration-300 ${
+            className={`px-4 py-2 font-arsenal rounded-lg transition-colors duration-300 ${
               selectedLanguage === lang
                 ? "bg-gray-200 shadow-md"
                 : "text-gray-700 hover:bg-gray-300 font-arsenal"
@@ -206,25 +227,34 @@ const ClientsForm: React.FC<ClientsFormProps> = ({
 
       <div className="mb-4">
         <FileUpload onFileUpload={handleUpload} />
-        {formData.media_url && (
-          <img
-            src={formData.media_url}
-            alt="Vista previa"
-            className="mt-2 w-64 h-auto object-contain"
-          />
-        )}
       </div>
-
+      {!isFormValid() && (
+        <p className="text-yellow-600 font-arsenal mb-2">
+          ⚠️ Debes completar todos los campos en los tres idiomas y subir una
+          imagen antes de guardar.
+        </p>
+      )}
       <div className="flex space-x-2">
         <button
           onClick={() => handleTranslate(selectedLanguage)}
-          className="bg-black text-white px-4 py-2 rounded-md font-arsenal"
+          className="bg-black text-white px-4 py-2 rounded-lg font-arsenal"
+          disabled={isTranslating} // ⬅️ Deshabilita el botón mientras traduce
         >
-          Traducir desde {selectedLanguage}
+          {isTranslating ? (
+            <FontAwesomeIcon icon={faSpinner} spin className="mr-2" />
+          ) : (
+            `Traducir desde ${selectedLanguage}`
+          )}
         </button>
+
         <button
           onClick={handleSubmit}
-          className="bg-green-700 text-white px-4 py-2 rounded-md font-arsenal"
+          className={`px-4 py-2 rounded-lg font-arsenal ${
+            isFormValid()
+              ? "bg-green-700 text-white"
+              : "bg-gray-400 text-gray-700 cursor-not-allowed"
+          }`}
+          disabled={!isFormValid()} // ⬅ Deshabilita el botón si el formulario no es válido
         >
           {initialData ? "Guardar Cambios" : "Guardar Cliente"}
         </button>

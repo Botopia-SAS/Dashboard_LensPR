@@ -95,14 +95,14 @@ const ClientsList = () => {
                 {editingClient?.id === client.id ? (
                   <button
                     onClick={handleSave}
-                    className="bg-green-500 text-white px-4 py-2 rounded-md font-arsenal"
+                    className="bg-green-500 text-white px-4 py-2 rounded-lg font-arsenal"
                   >
                     Guardar
                   </button>
                 ) : (
                   <button
                     onClick={() => handleEdit(client)}
-                    className="bg-blue-500 text-white px-4 py-2 rounded-md font-arsenal"
+                    className="bg-blue-500 text-white px-4 py-2 rounded-lg font-arsenal"
                   >
                     Editar
                   </button>

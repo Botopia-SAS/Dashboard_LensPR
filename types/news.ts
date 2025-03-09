@@ -10,4 +10,5 @@ export interface FormDataNews {
   Inglés: LanguageDataNews;
   Portugués: LanguageDataNews;
   media_url: string; // la URL final de Cloudinary
+  news_link?: string; // ⬅ Agregamos esta línea
 }

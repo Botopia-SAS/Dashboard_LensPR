@@ -34,7 +34,7 @@ export default function ChangeUserRole() {
   };
 
   return (
-    <div className="max-w-lg mx-auto p-6 bg-white shadow-lg rounded-lg">
+    <div className="max-w-lg p-6 bg-white shadow-lg rounded-lg">
       <h2 className="text-xl font-arsenal mb-4">Cambiar Rol de Usuario</h2>
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
@@ -46,7 +46,7 @@ export default function ChangeUserRole() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="Ejemplo: usuario@example.com"
-            className="border p-2 rounded"
+            className="border p-2 rounded-lg"
             required
           />
         </label>
@@ -57,7 +57,7 @@ export default function ChangeUserRole() {
           <select
             value={newRole}
             onChange={(e) => setNewRole(e.target.value)}
-            className="border p-2 rounded"
+            className="border p-2 -lg"
             required
           >
             <option value="">Selecciona un rol</option>
@@ -69,7 +69,7 @@ export default function ChangeUserRole() {
         {/* Botón de Enviar */}
         <button
           type="submit"
-          className="bg-black text-white p-2 rounded hover:bg-blue-700 transition font-arsenal"
+          className="bg-black text-white p-2 rounded-lg hover:bg-blue-700 transition font-arsenal"
         >
           Cambiar Rol
         </button>

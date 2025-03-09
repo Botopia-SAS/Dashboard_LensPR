@@ -3,6 +3,8 @@ import { useEffect, useState } from "react";
 import Modal from "@/components/ui/Modal";
 import EventsForm from "@/components/forms/eventForms/EventsForm";
 import EventsCard from "@/components/forms/eventForms/EventCard";
+import { faSpinner } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 interface LangEvents {
   name: string;
@@ -47,6 +49,8 @@ interface EventsRecord {
 }
 
 export default function EventsPage() {
+  const [isLoading, setIsLoading] = useState(true); // Nuevo estado de carga
+
   const [events, setEvents] = useState<EventsRecord[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [showModal, setShowModal] = useState(false);
@@ -54,13 +58,16 @@ export default function EventsPage() {
 
   // Cargar eventos
   const fetchEvents = async () => {
+    setIsLoading(true); // ⬅ Activa el estado de carga antes de la petición
     try {
       const res = await fetch("/api/events/getEvent");
-      if (!res.ok) throw new Error("Error al obtener events");
+      if (!res.ok) throw new Error("Error al obtener eventos");
       const data = await res.json();
       setEvents(data);
     } catch (error) {
       console.error("Error fetchEvents:", error);
+    } finally {
+      setIsLoading(false); // ⬅ Desactiva el estado de carga al finalizar
     }
   };
 
@@ -194,7 +201,7 @@ export default function EventsPage() {
 
       <button
         onClick={handleCreate}
-        className="bg-black text-white px-4 py-2 rounded-full mb-4 flex items-center font-arsenal"
+        className="bg-black text-white px-4 py-2 rounded-lg mb-4 flex items-center font-arsenal"
       >
         <span className="mr-2 text-xl font-arsenal">+</span> Agregar Evento
       </button>
@@ -215,17 +222,29 @@ export default function EventsPage() {
         />
       </Modal>
 
-      {/* Listado en vertical */}
-      <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-        {filteredEvents.map((item) => (
-          <EventsCard
-            key={item.id}
-            eventItem={item}
-            onDelete={handleDelete}
-            onEdit={handleEdit}
+      {/* 🔄 Mostrar Spinner mientras se cargan los datos */}
+      {isLoading ? (
+        <div className="flex flex-col justify-center items-center min-h-[200px]">
+          <FontAwesomeIcon
+            icon={faSpinner}
+            spin
+            size="3x" // Aumentamos tamaño
+            className="text-gray-500"
           />
-        ))}
-      </div>
+          <p className="text-gray-500 mt-2 font-arsenal">Cargando datos...</p>
+        </div>
+      ) : (
+        <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+          {filteredEvents.map((item) => (
+            <EventsCard
+              key={item.id}
+              eventItem={item}
+              onDelete={handleDelete}
+              onEdit={handleEdit}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 }

@@ -10,22 +10,24 @@ export async function POST(req: Request) {
     const body = await req.json();
     console.log("Datos recibidos en /api/addNews:", body);
 
-    const { Español, Inglés, Portugués, media_url } = body;
+    const { Español, Inglés, Portugués, media_url, news_link } = body;
+    const editorial_clean = Español?.editorial
+      ? Español.editorial.replace(/\s+/g, "")
+      : null;
 
     const dataToInsert = {
       title_spanish: Español?.title ?? null,
       description_spanish: Español?.description ?? null,
-      editorial_spanish: Español?.editorial ?? null,
+      editorial_spanish: editorial_clean,
 
       title_english: Inglés?.title ?? null,
       description_english: Inglés?.description ?? null,
-      editorial_english: Inglés?.editorial ?? null,
 
       title_portuguese: Portugués?.title ?? null,
       description_portuguese: Portugués?.description ?? null,
-      editorial_portuguese: Portugués?.editorial ?? null,
 
       media_url: media_url ?? null,
+      news_link: news_link ?? null, // ⬅ Agregamos el nuevo campo de enlace
     };
 
     const { data, error } = await supabase.from("news").insert([dataToInsert]);

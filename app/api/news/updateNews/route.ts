@@ -8,7 +8,7 @@ const supabase = createClient(supabaseUrl, supabaseAnonKey);
 export async function PATCH(req: Request) {
   try {
     const body = await req.json();
-    const { id, Español, Inglés, Portugués, media_url } = body;
+    const { id, Español, Inglés, Portugués, media_url, news_link } = body;
 
     // Validación mínima
     if (!id) {
@@ -17,22 +17,25 @@ export async function PATCH(req: Request) {
         { status: 400 }
       );
     }
-
+    const editorial_clean =
+      Español?.editorial?.trim() ||
+      Inglés?.editorial?.trim() ||
+      Portugués?.editorial?.trim() ||
+      null;
     // Mapeamos a las columnas de tu tabla "news"
     const dataToUpdate = {
       title_spanish: Español?.title ?? null,
       description_spanish: Español?.description ?? null,
-      editorial_spanish: Español?.editorial ?? null,
+      editorial_spanish: editorial_clean,
 
       title_english: Inglés?.title ?? null,
       description_english: Inglés?.description ?? null,
-      editorial_english: Inglés?.editorial ?? null,
 
       title_portuguese: Portugués?.title ?? null,
       description_portuguese: Portugués?.description ?? null,
-      editorial_portuguese: Portugués?.editorial ?? null,
 
       media_url: media_url ?? null,
+      news_link: news_link ?? null, // ⬅ Se agrega el campo de enlace
     };
 
     const { data, error } = await supabase

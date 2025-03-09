@@ -3,6 +3,8 @@ import React, { useState, useEffect } from "react";
 import FileUpload from "../../ui/FileUpload";
 import DatePicker from "react-datepicker"; // <---
 import "react-datepicker/dist/react-datepicker.css";
+import { faSpinner } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 interface LanguageDataEvents {
   name: string;
@@ -164,8 +166,9 @@ const EventsForm: React.FC<EventsFormProps> = ({
       alert("Hubo un error al subir la imagen.");
     }
   };
-
+  const [isTranslating, setIsTranslating] = useState(false);
   const handleTranslate = async (sourceLang: keyof FormDataEvents) => {
+    setIsTranslating(true); // ⬅ Activa el estado de carga
     const updated = { ...formData };
     const source =
       sourceLang === "Español" ? "es" : sourceLang === "Inglés" ? "en" : "pt";
@@ -195,6 +198,7 @@ const EventsForm: React.FC<EventsFormProps> = ({
       }
     }
     setFormData(updated);
+    setIsTranslating(false); // ⬅ Desactiva el estado de carga
   };
 
   const handleSubmit = () => {
@@ -208,9 +212,32 @@ const EventsForm: React.FC<EventsFormProps> = ({
 
   // AutoCompletar de ubicación: Podrías integrar Google Places
   // y en onPlaceSelected => handleLangChange(selectedLanguage, "location", place)
+  const isFormValid = () => {
+    // Verificar que todos los idiomas tienen valores completos
+    for (const lang of ["Español", "Inglés", "Portugués"] as const) {
+      const data = formData[lang];
+      if (
+        !data.name?.trim() ||
+        !data.location?.trim() ||
+        !data.category?.trim() ||
+        !data.description?.trim()
+      ) {
+        return false; // Si algún campo está vacío, no se puede guardar
+      }
+    }
+
+    // Validar los campos globales
+    return (
+      Boolean(formData.media_url) && // Asegura que se subió una imagen
+      Boolean(eventDate) && // La fecha debe ser válida
+      formData.duration > 0 && // La duración debe ser mayor a 0
+      Boolean(formData.cost?.trim()) &&
+      Boolean(formData.register_link?.trim())
+    );
+  };
 
   return (
-    <div className="p-6 border">
+    <div className="p-6 border rounded-lg">
       {/* Tabs de idioma */}
       <div className="flex space-x-4 mb-4">
         {(["Español", "Inglés", "Portugués"] as const).map((lang) => (
@@ -311,24 +338,33 @@ const EventsForm: React.FC<EventsFormProps> = ({
 
       {/* Imagen */}
       <FileUpload onFileUpload={handleUpload} />
-      {formData.media_url && (
-        <img
-          src={formData.media_url}
-          alt="Vista previa"
-          className="mt-2 w-64 h-auto object-contain"
-        />
+      {!isFormValid() && (
+        <p className="text-yellow-600 font-arsenal mb-2">
+          ⚠️ Debes completar todos los campos en los tres idiomas y la
+          información del evento antes de guardar.
+        </p>
       )}
-
       <div className="flex space-x-2 mt-4">
         <button
           onClick={() => handleTranslate(selectedLanguage)}
-          className="bg-black text-white px-4 py-2 rounded font-arsenal"
+          className="bg-black text-white px-4 py-2 rounded-lg flex items-center justify-center"
+          disabled={isTranslating} // ⬅ Desactiva el botón mientras traduce
         >
-          Traducir desde {selectedLanguage}
+          {isTranslating ? (
+            <FontAwesomeIcon icon={faSpinner} spin className="mr-2" />
+          ) : (
+            `Traducir desde ${selectedLanguage}`
+          )}
         </button>
+
         <button
           onClick={handleSubmit}
-          className="bg-green-600 text-white px-4 py-2 rounded font-arsenal"
+          className={`px-4 py-2 rounded font-arsenal ${
+            isFormValid()
+              ? "bg-green-600 text-white"
+              : "bg-gray-400 text-gray-700 cursor-not-allowed"
+          }`}
+          disabled={!isFormValid()} // ⬅ Deshabilita el botón si el formulario no es válido
         >
           {initialData ? "Guardar Cambios" : "Guardar Evento"}
         </button>

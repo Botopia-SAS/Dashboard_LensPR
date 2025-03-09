@@ -63,7 +63,7 @@ export default function ClientsCard({
   };
 
   return (
-    <div className="relative w-full border rounded shadow p-4 flex flex-col md:flex-row z-10">
+    <div className="relative w-full border rounded-lg shadow p-4 flex flex-col md:flex-row z-10 mb-6">
       {/* Botones Edit/Delete top-right */}
       <div className="absolute top-2 right-2 flex space-x-3">
         <button
@@ -86,7 +86,7 @@ export default function ClientsCard({
         <div className="flex space-x-2 mb-2">
           <button
             onClick={() => setCurrentLang("ES")}
-            className={`px-2 py-1 rounded ${
+            className={`px-2 py-1 rounded-lg ${
               currentLang === "ES"
                 ? "bg-gray-200 font-bold"
                 : "hover:bg-gray-100"
@@ -96,7 +96,7 @@ export default function ClientsCard({
           </button>
           <button
             onClick={() => setCurrentLang("EN")}
-            className={`px-2 py-1 rounded ${
+            className={`px-2 py-1 rounded-lg ${
               currentLang === "EN"
                 ? "bg-gray-200 font-arsenal"
                 : "hover:bg-gray-100"
@@ -106,7 +106,7 @@ export default function ClientsCard({
           </button>
           <button
             onClick={() => setCurrentLang("PT")}
-            className={`px-2 py-1 rounded ${
+            className={`px-2 py-1 rounded-lg ${
               currentLang === "PT"
                 ? "bg-gray-200 font-arsenal"
                 : "hover:bg-gray-100"

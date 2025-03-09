@@ -3,6 +3,8 @@ import { useEffect, useState } from "react";
 import Modal from "@/components/ui/Modal";
 import NewsForm from "@/components/forms/newsForms/NewsForm";
 import NewsCard from "@/components/forms/newsForms/NewsCard"; // Ajusta la ruta si tu NewsCard está en el mismo folder
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faSpinner } from "@fortawesome/free-solid-svg-icons";
 
 export interface LanguageDataNews {
   title: string;
@@ -29,12 +31,14 @@ interface NewsRecord {
   editorial_english: string | undefined;
   editorial_portuguese: string | undefined;
   media_url: string | undefined;
+  news_link: string | undefined;
   // ...cualquier otro campo de "news"
 }
 
 export default function NewsPage() {
   const [newsList, setNewsList] = useState<NewsRecord[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [isLoading, setIsLoading] = useState(true); // Nuevo estado de carga
 
   // Modal control
   const [showModal, setShowModal] = useState(false);
@@ -42,6 +46,8 @@ export default function NewsPage() {
 
   // Obtener todas las noticias
   const fetchNews = async () => {
+    setIsLoading(true); // ⬅ Activa el estado de carga antes de la petición
+
     try {
       const res = await fetch("/api/news/getNews");
       if (!res.ok) throw new Error("Error al obtener news");
@@ -49,6 +55,8 @@ export default function NewsPage() {
       setNewsList(data);
     } catch (error) {
       console.error("Error fetchNews:", error);
+    } finally {
+      setIsLoading(false); // ⬅ Desactiva el estado de carga al finalizar
     }
   };
 
@@ -174,7 +182,7 @@ export default function NewsPage() {
 
       <button
         onClick={handleCreate}
-        className="bg-black text-white px-4 py-2 rounded-full mb-4 flex items-center font-arsenal"
+        className="bg-black text-white px-4 py-2 rounded-lg mb-4 flex items-center font-arsenal"
       >
         <span className="mr-2 text-xl font-arsenal">+</span> Agregar Noticia
       </button>
@@ -195,17 +203,29 @@ export default function NewsPage() {
         />
       </Modal>
 
-      {/* LISTADO DE NOTICIAS */}
-      <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 z-10">
-        {filteredNews.map((item) => (
-          <NewsCard
-            key={item.id}
-            newsItem={item}
-            onDelete={handleDelete}
-            onEdit={(record: NewsRecord) => handleEdit(record)}
+      {/* 🔄 Mostrar Spinner mientras se cargan los datos */}
+      {isLoading ? (
+        <div className="flex flex-col justify-center items-center min-h-[200px]">
+          <FontAwesomeIcon
+            icon={faSpinner}
+            spin
+            size="3x" // Aumentamos tamaño
+            className="text-gray-500"
           />
-        ))}
-      </div>
+          <p className="text-gray-500 mt-2 font-arsenal">Cargando datos...</p>
+        </div>
+      ) : (
+        <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 z-10">
+          {filteredNews.map((item) => (
+            <NewsCard
+              key={item.id}
+              newsItem={item}
+              onDelete={handleDelete}
+              onEdit={(record: NewsRecord) => handleEdit(record)}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 }

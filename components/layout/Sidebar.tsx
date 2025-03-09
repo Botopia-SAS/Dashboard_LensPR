@@ -1,21 +1,25 @@
 "use client";
 import { useState } from "react";
 import {
-  FaUserCircle,
   FaUsers,
   FaNewspaper,
   FaUserLock,
   FaCalendar,
   FaBars,
   FaTimes,
+  FaChevronDown,
 } from "react-icons/fa";
 import { motion } from "framer-motion";
-import { SignedIn, SignedOut, UserButton } from "@clerk/nextjs"; // Importar Clerk
+
+import { UserButton, useClerk } from "@clerk/nextjs"; // Importar Clerk
 import Link from "next/link";
 
 const Sidebar = () => {
+  const { openUserProfile } = useClerk();
   const [isExpanded, setIsExpanded] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false); // Estado para móviles
+  const { signOut } = useClerk(); // Función para cerrar sesión
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   const menuItems = [
     {
@@ -94,30 +98,65 @@ const Sidebar = () => {
         </nav>
 
         <motion.div
-          className="mt-auto flex justify-center w-full p-4"
+          className="mt-auto flex flex-col items-center w-full p-4 relative"
           initial={{ opacity: 1 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.3, ease: "easeInOut" }}
         >
-          {/* Cuando el usuario NO está autenticado (Mostrar SignInButton) */}
-          <SignedOut>
-            <button className="flex items-center justify-center gap-3 text-gray-700 hover:text-black w-full">
-              <FaUserCircle size={30} />
-              {isExpanded && (
-                <span className="text-lg font-semibold">Iniciar Sesión</span>
-              )}
-            </button>
-          </SignedOut>
+          <div className="relative w-full">
+            {/* Botón de perfil con flecha de despliegue */}
+            <button
+              className="flex items-center justify-between text-gray-700 hover:text-black w-full p-2 rounded-lg transition-all"
+              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+            >
+              <div className="flex items-center gap-3">
+                {/* 🔹 Siempre visible (icono de usuario de Clerk) */}
+                <UserButton afterSignOutUrl="/" />
 
-          {/* Cuando el usuario SÍ está autenticado (Mostrar UserButton) */}
-          <SignedIn>
-            <button className="flex items-center justify-center gap-3 text-gray-700 hover:text-black w-full">
-              <UserButton afterSignOutUrl="/" />
+                {/* 🔹 Solo se muestra cuando el sidebar está expandido */}
+                {isExpanded && (
+                  <motion.span
+                    className="text-lg font-semibold text-black"
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.3, ease: "easeInOut" }}
+                  >
+                    Perfil
+                  </motion.span>
+                )}
+              </div>
+
+              {/* 🔹 Flecha visible solo cuando el sidebar está expandido */}
               {isExpanded && (
-                <span className="text-lg font-semibold">Perfil</span>
+                <motion.div animate={{ rotate: isDropdownOpen ? 180 : 0 }}>
+                  <FaChevronDown />
+                </motion.div>
               )}
             </button>
-          </SignedIn>
+
+            {/* Menú desplegable de opciones */}
+            {isDropdownOpen && (
+              <motion.div
+                className="absolute left-0 bottom-full mb-2 w-48 bg-white border rounded-lg shadow-lg z-50"
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.2 }}
+              >
+                <button
+                  onClick={() => signOut()} // Cerrar sesión
+                  className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100"
+                >
+                  Cerrar sesión
+                </button>
+                <button
+                  onClick={() => openUserProfile()} // Abre el modal de cuenta
+                  className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100"
+                >
+                  Manage Account
+                </button>
+              </motion.div>
+            )}
+          </div>
         </motion.div>
       </motion.aside>
 

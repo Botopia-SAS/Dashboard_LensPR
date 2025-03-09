@@ -28,12 +28,14 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children }) => {
         "
       >
         {/* Botón de cerrar */}
-        <button
-          onClick={onClose}
-          className="absolute top-2 right-2 text-gray-500 hover:text-gray-700 "
-        >
-          X
-        </button>
+        <div className="sticky top-0   flex justify-end p-2">
+          <button
+            onClick={onClose}
+            className="text-black hover:text-gray-400 p-1 rounded-full"
+          >
+            X
+          </button>
+        </div>
 
         {/* Contenido del modal */}
         {children}
