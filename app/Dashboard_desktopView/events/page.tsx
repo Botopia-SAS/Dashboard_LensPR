@@ -1,10 +1,13 @@
 "use client";
 import { useEffect, useState } from "react";
+
+type Language = "Español" | "Inglés" | "Portugués";
 import Modal from "@/components/ui/Modal";
 import EventsForm from "@/components/forms/eventForms/EventsForm";
 import EventsCard from "@/components/forms/eventForms/EventCard";
 import { faSpinner } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 
 interface LangEvents {
   name: string;
@@ -46,28 +49,34 @@ interface EventsRecord {
   cost?: string;
   register_link?: string;
   media_url?: string;
+  order_number: number; // ✅ Asegurar que cada evento tiene un número de orden
 }
 
 export default function EventsPage() {
   const [isLoading, setIsLoading] = useState(true); // Nuevo estado de carga
-
   const [events, setEvents] = useState<EventsRecord[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [editingEvent, setEditingEvent] = useState<EventsRecord | null>(null);
 
-  // Cargar eventos
+  // 📌 Obtener eventos desde la API y ordenarlos
   const fetchEvents = async () => {
-    setIsLoading(true); // ⬅ Activa el estado de carga antes de la petición
+    setIsLoading(true);
     try {
       const res = await fetch("/api/events/getEvent");
       if (!res.ok) throw new Error("Error al obtener eventos");
       const data = await res.json();
-      setEvents(data);
+
+      // Ordenar eventos por order_number antes de actualizar el estado
+      setEvents(
+        data.sort(
+          (a: EventsRecord, b: EventsRecord) => a.order_number - b.order_number
+        )
+      );
     } catch (error) {
       console.error("Error fetchEvents:", error);
     } finally {
-      setIsLoading(false); // ⬅ Desactiva el estado de carga al finalizar
+      setIsLoading(false);
     }
   };
 
@@ -109,7 +118,8 @@ export default function EventsPage() {
   };
 
   // Editar
-  const handleEdit = (item: EventsRecord) => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const handleEdit = (item: EventsRecord, _lang: Language) => {
     setEditingEvent(item);
     setShowModal(true);
   };
@@ -157,7 +167,38 @@ export default function EventsPage() {
       console.error("Error al enviar datos:", error);
     }
   };
+  // 📌 Reordenar eventos con Drag & Drop
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const handleDragEnd = async (result: any) => {
+    if (!result.destination) return;
 
+    const updatedEvents = [...events];
+    const [movedItem] = updatedEvents.splice(result.source.index, 1);
+    updatedEvents.splice(result.destination.index, 0, movedItem);
+
+    // Reasignar el orden
+    const reorderedEvents = updatedEvents.map((event, index) => ({
+      ...event,
+      order_number: index,
+    }));
+
+    console.log("📌 Nuevo orden en el estado:", reorderedEvents);
+
+    setEvents(reorderedEvents);
+
+    try {
+      const response = await fetch("/api/events/updateEventOrder", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(reorderedEvents),
+      });
+
+      const result = await response.json();
+      console.log("📨 Respuesta del servidor:", result);
+    } catch (error) {
+      console.error("❌ Error actualizando orden:", error);
+    }
+  };
   // Mapeo para initialData
   const mapRecordToFormData = (record: EventsRecord) => {
     return {
@@ -224,26 +265,42 @@ export default function EventsPage() {
 
       {/* 🔄 Mostrar Spinner mientras se cargan los datos */}
       {isLoading ? (
-        <div className="flex flex-col justify-center items-center min-h-[200px]">
+        <div className="flex justify-center items-center min-h-[200px]">
           <FontAwesomeIcon
             icon={faSpinner}
             spin
-            size="3x" // Aumentamos tamaño
+            size="3x"
             className="text-gray-500"
           />
-          <p className="text-gray-500 mt-2 font-arsenal">Cargando datos...</p>
+          <p className="text-gray-500 mt-2">Cargando datos...</p>
         </div>
       ) : (
-        <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-          {filteredEvents.map((item) => (
-            <EventsCard
-              key={item.id}
-              eventItem={item}
-              onDelete={handleDelete}
-              onEdit={handleEdit}
-            />
-          ))}
-        </div>
+        <DragDropContext onDragEnd={handleDragEnd}>
+          <Droppable droppableId="events-list">
+            {(provided) => (
+              <div ref={provided.innerRef} {...provided.droppableProps}>
+                {filteredEvents.map((item, index) => (
+                  <Draggable key={item.id} draggableId={item.id} index={index}>
+                    {(provided) => (
+                      <div
+                        ref={provided.innerRef}
+                        {...provided.draggableProps}
+                        {...provided.dragHandleProps}
+                      >
+                        <EventsCard
+                          eventItem={item}
+                          onDelete={handleDelete}
+                          onEdit={(item) => handleEdit(item, "Español")}
+                        />
+                      </div>
+                    )}
+                  </Draggable>
+                ))}
+                {provided.placeholder}
+              </div>
+            )}
+          </Droppable>
+        </DragDropContext>
       )}
     </div>
   );

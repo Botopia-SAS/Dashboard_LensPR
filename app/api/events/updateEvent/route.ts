@@ -18,6 +18,7 @@ export async function PATCH(req: Request) {
       duration,
       cost,
       register_link,
+      order_number, // ✅ Asegurar que también recibimos el nuevo order_number
     } = body;
 
     if (!id) {
@@ -26,6 +27,22 @@ export async function PATCH(req: Request) {
         { status: 400 }
       );
     }
+
+    // Obtener el order_number actual del evento
+    const { data: oldEvent, error: fetchError } = await supabase
+      .from("events")
+      .select("order_number")
+      .eq("id", id)
+      .single();
+
+    if (fetchError || !oldEvent) {
+      return NextResponse.json(
+        { error: "Evento no encontrado" },
+        { status: 404 }
+      );
+    }
+
+    const oldOrder = oldEvent.order_number;
 
     const dataToUpdate = {
       name_spanish: Español?.name ?? null,
@@ -48,19 +65,40 @@ export async function PATCH(req: Request) {
       cost: cost ?? null,
       register_link: register_link ?? null,
       media_url: media_url ?? null,
+      order_number: order_number, // ✅ Guardar el nuevo order_number si es distinto
     };
 
-    const { data, error } = await supabase
+    // Si el número de orden cambió, reordenamos los demás eventos
+    if (order_number !== oldOrder) {
+      // Mover otros eventos hacia adelante o atrás
+      const { error: reorderError } = await supabase
+        .from("events")
+        .update({ order_number: oldOrder })
+        .neq("id", id)
+        .gte("order_number", Math.min(oldOrder, order_number))
+        .lte("order_number", Math.max(oldOrder, order_number));
+
+      if (reorderError) {
+        console.error("Error al reordenar eventos:", reorderError);
+        return NextResponse.json(
+          { error: reorderError.message },
+          { status: 500 }
+        );
+      }
+    }
+
+    // Actualizar el evento
+    const { error: updateError } = await supabase
       .from("events")
       .update(dataToUpdate)
       .eq("id", id);
 
-    if (error) {
-      console.error("Error al actualizar evento:", error);
-      return NextResponse.json({ error: error.message }, { status: 500 });
+    if (updateError) {
+      console.error("Error al actualizar evento:", updateError);
+      return NextResponse.json({ error: updateError.message }, { status: 500 });
     }
 
-    return NextResponse.json({ message: "Evento actualizado con éxito", data });
+    return NextResponse.json({ message: "Evento actualizado con éxito" });
   } catch (error) {
     console.error("Error en /api/events/updateEvent:", error);
     return NextResponse.json(

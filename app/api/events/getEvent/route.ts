@@ -7,7 +7,11 @@ const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 export async function GET() {
   try {
-    const { data, error } = await supabase.from("events").select("*");
+    const { data, error } = await supabase
+      .from("events")
+      .select("*")
+      .order("order_number", { ascending: true }); // 👈 Ordenamos por `order_number`
+
     if (error) throw error;
     return NextResponse.json(data);
   } catch (err) {

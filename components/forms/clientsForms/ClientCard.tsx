@@ -18,6 +18,7 @@ interface ClientsRecord {
   job_title_portuguese?: string;
   description_portuguese?: string;
   media_url?: string;
+  order_number: number;
 }
 
 interface ClientsCardProps {
@@ -38,6 +39,7 @@ type ClientItem = {
   description_english?: string;
   description_portuguese?: string;
   media_url?: string;
+  order_number: number;
 };
 
 export default function ClientsCard({

@@ -28,6 +28,7 @@ export interface ClientsRecord {
   description_portuguese?: string;
 
   media_url?: string;
+  order_number: number;
   // ... cualquier otro campo
 }
 

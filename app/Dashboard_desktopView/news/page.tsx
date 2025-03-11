@@ -5,6 +5,24 @@ import NewsForm from "@/components/forms/newsForms/NewsForm";
 import NewsCard from "@/components/forms/newsForms/NewsCard"; // Ajusta la ruta si tu NewsCard está en el mismo folder
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSpinner } from "@fortawesome/free-solid-svg-icons";
+import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
+
+// 📌 Interfaz para representar cada noticia
+interface NewsItem {
+  id: string;
+  title_spanish: string;
+  title_english: string;
+  title_portuguese: string;
+  description_spanish: string;
+  description_english: string;
+  description_portuguese: string;
+  editorial_spanish: string;
+  editorial_english: string;
+  editorial_portuguese: string;
+  media_url: string;
+  news_link: string;
+  order_number: number; // ✅ Asegurar que cada noticia tiene un número de orden
+}
 
 export interface LanguageDataNews {
   title: string;
@@ -39,24 +57,25 @@ export default function NewsPage() {
   const [newsList, setNewsList] = useState<NewsRecord[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [isLoading, setIsLoading] = useState(true); // Nuevo estado de carga
-
-  // Modal control
   const [showModal, setShowModal] = useState(false);
   const [editingNews, setEditingNews] = useState<NewsRecord | null>(null);
 
-  // Obtener todas las noticias
+  // 🔹 Obtener lista de noticias desde Supabase
   const fetchNews = async () => {
-    setIsLoading(true); // ⬅ Activa el estado de carga antes de la petición
-
+    setIsLoading(true);
     try {
-      const res = await fetch("/api/news/getNews");
-      if (!res.ok) throw new Error("Error al obtener news");
+      const res = await fetch("/api/news/getNews", { cache: "no-store" }); // ✅ Usa `no-store` para evitar cache
+      if (!res.ok) throw new Error("Error al obtener noticias");
       const data = await res.json();
-      setNewsList(data);
+
+      // Ordenar por `order_number`
+      setNewsList(
+        data.sort((a: NewsItem, b: NewsItem) => a.order_number - b.order_number)
+      );
     } catch (error) {
       console.error("Error fetchNews:", error);
     } finally {
-      setIsLoading(false); // ⬅ Desactiva el estado de carga al finalizar
+      setIsLoading(false);
     }
   };
 
@@ -65,9 +84,38 @@ export default function NewsPage() {
   }, []);
 
   // Filtrar noticias por título en español
-  const filteredNews = newsList.filter((item) =>
-    item.title_spanish?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+
+  // 🔹 Manejo del Drag & Drop
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const handleDragEnd = async (result: any) => {
+    if (!result.destination) return;
+
+    // Reordenar noticias en el estado
+    const updatedNews = [...newsList];
+    const [movedItem] = updatedNews.splice(result.source.index, 1);
+    updatedNews.splice(result.destination.index, 0, movedItem);
+
+    // Asignar nuevo orden
+    const reorderedNews = updatedNews.map((news, index) => ({
+      ...news,
+      order_number: index,
+    }));
+
+    setNewsList(reorderedNews); // Actualizar estado
+
+    try {
+      const response = await fetch("/api/news/updateNewsOrder", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(reorderedNews),
+      });
+
+      const result = await response.json();
+      console.log("📨 Respuesta del servidor:", result);
+    } catch (error) {
+      console.error("❌ Error actualizando orden:", error);
+    }
+  };
 
   // Crear
   const handleCreate = () => {
@@ -97,9 +145,11 @@ export default function NewsPage() {
       console.error("Error al eliminar:", error);
     }
   };
+  type Language = "ES" | "EN" | "PT"; // Idiomas disponibles
 
   // Editar
-  const handleEdit = (item: NewsRecord) => {
+  const handleEdit = (item: NewsRecord, lang: Language) => {
+    console.log("Editando noticia en idioma:", lang);
     setEditingNews(item);
     setShowModal(true);
   };
@@ -209,22 +259,40 @@ export default function NewsPage() {
           <FontAwesomeIcon
             icon={faSpinner}
             spin
-            size="3x" // Aumentamos tamaño
+            size="3x"
             className="text-gray-500"
           />
           <p className="text-gray-500 mt-2 font-arsenal">Cargando datos...</p>
         </div>
       ) : (
-        <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 z-10">
-          {filteredNews.map((item) => (
-            <NewsCard
-              key={item.id}
-              newsItem={item}
-              onDelete={handleDelete}
-              onEdit={(record: NewsRecord) => handleEdit(record)}
-            />
-          ))}
-        </div>
+        <DragDropContext onDragEnd={handleDragEnd}>
+          <Droppable droppableId="news-list">
+            {(provided) => (
+              <div ref={provided.innerRef} {...provided.droppableProps}>
+                {newsList.map((item, index) => (
+                  <Draggable key={item.id} draggableId={item.id} index={index}>
+                    {(provided) => (
+                      <div
+                        ref={provided.innerRef}
+                        {...provided.draggableProps}
+                        {...provided.dragHandleProps}
+                      >
+                        <NewsCard
+                          newsItem={item}
+                          onDelete={handleDelete}
+                          onEdit={(record: NewsRecord, lang: Language) =>
+                            handleEdit(record, lang)
+                          }
+                        />
+                      </div>
+                    )}
+                  </Draggable>
+                ))}
+                {provided.placeholder}
+              </div>
+            )}
+          </Droppable>
+        </DragDropContext>
       )}
     </div>
   );

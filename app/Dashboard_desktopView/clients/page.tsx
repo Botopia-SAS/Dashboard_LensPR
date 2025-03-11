@@ -6,10 +6,10 @@ import Modal from "@/components/ui/Modal";
 import ClientsForm from "@/components/forms/clientsForms/ClientsForm";
 import ClientsCard from "@/components/forms/clientsForms/ClientCard";
 import { ClientsRecord } from "@/types/clients";
+import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 
 export default function ClientsPage() {
   const [isLoading, setIsLoading] = useState(true); // Nuevo estado de carga
-
   const [clients, setClients] = useState<ClientsRecord[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [showModal, setShowModal] = useState(false);
@@ -23,12 +23,19 @@ export default function ClientsPage() {
     try {
       const res = await fetch("/api/clients/getClients");
       if (!res.ok) throw new Error("Error al obtener clientes");
-      const data = await res.json();
-      setClients(data);
+      const data: ClientsRecord[] = await res.json(); // 👈 Aquí definimos explícitamente el tipo
+
+      // Ordenar clientes por el campo `order`
+      setClients(
+        data.sort(
+          (a: ClientsRecord, b: ClientsRecord) =>
+            a.order_number - b.order_number
+        )
+      );
     } catch (error) {
       console.error("Error fetchClients:", error);
     } finally {
-      setIsLoading(false); // Finaliza la carga
+      setIsLoading(false);
     }
   };
 
@@ -70,8 +77,8 @@ export default function ClientsPage() {
     }
   };
 
-  // Editar
   const handleEdit = (item: ClientsRecord) => {
+    console.log("Item recibido en handleEdit:", item);
     setEditingClient(item);
     setShowModal(true);
   };
@@ -140,6 +147,38 @@ export default function ClientsPage() {
       media_url: record.media_url || "",
     };
   };
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const handleDragEnd = async (result: any) => {
+    if (!result.destination) return;
+
+    const updatedClients = [...clients];
+    const [movedItem] = updatedClients.splice(result.source.index, 1);
+    updatedClients.splice(result.destination.index, 0, movedItem);
+
+    // Reasignar orden
+    const reorderedClients = updatedClients.map((client, index) => ({
+      ...client,
+      order_number: index, // 👈 Asegura que el `order_number` es un número
+    }));
+
+    console.log("📌 Nuevo orden en el estado:", reorderedClients); // 🔍 Verifica si se actualiza correctamente
+
+    setClients(reorderedClients);
+
+    try {
+      const response = await fetch("/api/clients/updateClientOrder", {
+        // ✅ Asegura que la ruta es correcta
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(reorderedClients),
+      });
+
+      const result = await response.json();
+      console.log("📨 Respuesta del servidor:", result); // 🔍 Verifica si la API responde correctamente
+    } catch (error) {
+      console.error("❌ Error actualizando orden:", error);
+    }
+  };
 
   return (
     <div className="p-6 bg-white">
@@ -176,28 +215,47 @@ export default function ClientsPage() {
         />
       </Modal>
 
-      {/* 🔄 Mostrar Spinner mientras se cargan los datos */}
       {isLoading ? (
         <div className="flex flex-col justify-center items-center min-h-[200px]">
           <FontAwesomeIcon
             icon={faSpinner}
             spin
-            size="3x" // Aumentamos tamaño
+            size="3x"
             className="text-gray-500"
           />
           <p className="text-gray-500 mt-2 font-arsenal">Cargando datos...</p>
         </div>
       ) : (
-        <div className="grid gap-y-6 gap-x-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 mb-6">
-          {filteredClients.map((item) => (
-            <ClientsCard
-              key={item.id}
-              clientItem={item}
-              onDelete={handleDelete}
-              onEdit={(item) => handleEdit(item)}
-            />
-          ))}
-        </div>
+        <DragDropContext onDragEnd={handleDragEnd}>
+          <Droppable droppableId="clients-list">
+            {(provided) => (
+              <div
+                ref={provided.innerRef}
+                {...provided.droppableProps}
+                className="grid gap-y-6 gap-x-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 mb-6"
+              >
+                {filteredClients.map((item, index) => (
+                  <Draggable key={item.id} draggableId={item.id} index={index}>
+                    {(provided) => (
+                      <div
+                        ref={provided.innerRef}
+                        {...provided.draggableProps}
+                        {...provided.dragHandleProps}
+                      >
+                        <ClientsCard
+                          clientItem={item}
+                          onDelete={handleDelete}
+                          onEdit={(item) => handleEdit(item)}
+                        />
+                      </div>
+                    )}
+                  </Draggable>
+                ))}
+                {provided.placeholder}
+              </div>
+            )}
+          </Droppable>
+        </DragDropContext>
       )}
     </div>
   );

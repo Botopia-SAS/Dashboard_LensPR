@@ -20,6 +20,22 @@ export async function POST(req: Request) {
       cost,
       register_link,
     } = body;
+    // Obtener el mayor order_number actual
+    const { data: maxOrderData, error: maxOrderError } = await supabase
+      .from("events")
+      .select("order_number")
+      .order("order_number", { ascending: false })
+      .limit(1);
+
+    if (maxOrderError) {
+      console.error("Error al obtener el máximo order_number:", maxOrderError);
+      return NextResponse.json(
+        { error: maxOrderError.message },
+        { status: 500 }
+      );
+    }
+
+    const maxOrder = maxOrderData?.[0]?.order_number ?? -1;
 
     const dataToInsert = {
       name_spanish: Español?.name ?? null,
@@ -42,6 +58,7 @@ export async function POST(req: Request) {
       cost: cost ?? null,
       register_link: register_link ?? null,
       media_url: media_url ?? null,
+      order_number: maxOrder + 1, // 📌 Asignar el siguiente número en orden
     };
 
     const { data, error } = await supabase

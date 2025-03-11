@@ -27,6 +27,7 @@ interface EventsRecord {
   cost?: string;
   register_link?: string;
   media_url?: string;
+  order_number: number; // ✅ Asegurar que cada evento tiene un número de orden
 }
 
 interface EventsCardProps {
