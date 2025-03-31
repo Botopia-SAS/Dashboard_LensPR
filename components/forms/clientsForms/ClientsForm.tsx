@@ -148,21 +148,28 @@ const ClientsForm: React.FC<ClientsFormProps> = ({
     onSubmit?.(formData, isEdit);
   };
   const isFormValid = () => {
-    // Verificar si todos los campos de los idiomas están completos
-    for (const lang of ["Español", "Inglés", "Portugués"] as const) {
-      const data = formData[lang];
-      if (
-        !data.name.trim() ||
-        !data.job_title.trim() ||
-        !data.description.trim()
-      ) {
-        return false; // Si algún campo está vacío, el formulario no es válido
+    // Campos requeridos para cada idioma
+    const requiredFields = ["name", "job_title", "description"] as const;
+    const languages = ["Español", "Inglés", "Portugués"] as const;
+
+    // Verificar todos los idiomas
+    for (const lang of languages) {
+      const langData = formData[lang];
+
+      for (const field of requiredFields) {
+        if (!langData?.[field]?.trim()) {
+          return false;
+        }
       }
     }
 
-    return !!formData.media_url; // Asegurar que la imagen también está presente
-  };
+    // Verificar la imagen
+    if (!formData.media_url) {
+      return false;
+    }
 
+    return true;
+  };
   return (
     <div className="p-6 border rounded-lg">
       {/* Botones de idioma */}

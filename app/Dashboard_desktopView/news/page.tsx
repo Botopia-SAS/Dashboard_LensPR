@@ -280,8 +280,8 @@ export default function NewsPage() {
                         <NewsCard
                           newsItem={item}
                           onDelete={handleDelete}
-                          onEdit={(record: NewsRecord, lang: Language) =>
-                            handleEdit(record, lang)
+                          onEdit={(itemOrRecord, lang) =>
+                            handleEdit(itemOrRecord, lang)
                           }
                         />
                       </div>
