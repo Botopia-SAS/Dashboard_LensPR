@@ -12,9 +12,10 @@ interface NewsRecord {
   description_english: string | undefined;
   description_portuguese: string | undefined;
   editorial_spanish: string | undefined;
+  editorial_english: string | undefined;
+  editorial_portuguese: string | undefined;
   media_url: string | undefined;
   news_link: string | undefined;
-  // ...cualquier otro campo de "news"
 }
 
 type Language = "ES" | "EN" | "PT";
