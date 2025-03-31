@@ -8,6 +8,7 @@ import {
   FaBars,
   FaTimes,
   FaChevronDown,
+  FaPalette,
 } from "react-icons/fa";
 import { motion } from "framer-motion";
 
@@ -37,6 +38,11 @@ const Sidebar = () => {
       name: "Events",
       icon: <FaCalendar />,
       path: "/Dashboard_desktopView/events",
+    },
+    {
+      name: "Tailor-made",
+      icon: <FaPalette />, // Cambia el icono si lo deseas
+      path: "/Dashboard_desktopView/tailor",
     },
     {
       name: "Users",

@@ -65,86 +65,98 @@ export default function ClientsCard({
   };
 
   return (
-    <div className="relative w-full border rounded-lg shadow p-4 flex flex-col md:flex-row z-10 mb-6">
-      {/* Botones Edit/Delete top-right */}
-      <div className="absolute top-2 right-2 flex space-x-3">
-        <button
-          onClick={() => onDelete(clientItem.id)}
-          className="text-black hover:text-red-700"
-        >
-          <FontAwesomeIcon icon={faTrash} />
-        </button>
-        <button
-          onClick={() => onEdit(clientItem, currentLang)}
-          className="text-black hover:text-blue-800"
-        >
-          <FontAwesomeIcon icon={faPenToSquare} />
-        </button>
-      </div>
-
-      {/* Sección izquierda */}
-      <div className=" w-full md:w-1/3 pr-4">
-        {/* Tabs de idiomas */}
-        <div className="flex space-x-2 mb-2">
-          <button
-            onClick={() => setCurrentLang("ES")}
-            className={`px-2 py-1 rounded-lg ${
-              currentLang === "ES"
-                ? "bg-gray-200 font-bold"
-                : "hover:bg-gray-100"
-            }`}
-          >
-            Español
-          </button>
-          <button
-            onClick={() => setCurrentLang("EN")}
-            className={`px-2 py-1 rounded-lg ${
-              currentLang === "EN"
-                ? "bg-gray-200 font-arsenal"
-                : "hover:bg-gray-100"
-            }`}
-          >
-            Inglés
-          </button>
-          <button
-            onClick={() => setCurrentLang("PT")}
-            className={`px-2 py-1 rounded-lg ${
-              currentLang === "PT"
-                ? "bg-gray-200 font-arsenal"
-                : "hover:bg-gray-100"
-            }`}
-          >
-            Portugués
-          </button>
-        </div>
-        <h3 className="font-arsenal">Nombre:</h3>
-        <p className="mb-3">{getFieldByLang("name") || "Sin nombre"}</p>
-
-        <h3 className="font-arsenal">Título de trabajo:</h3>
-        <p className="mb-3">{getFieldByLang("job_title") || "Sin título"}</p>
-      </div>
-
-      {/* Sección central: Descripción con scrollbar */}
-      <div className="w-full md:w-1/3 px-2">
-        <h3 className="font-arsenal mb-1">Descripción:</h3>
-        <div className="border p-2 h-[100px] overflow-y-auto">
-          {getFieldByLang("description") || "Sin descripción"}
+    <div className="relative w-full border rounded-lg shadow p-4 flex flex-col md:flex-row z-10 mb-6 bg-white">
+      {/* Grab Handle con pestaña */}
+      <div className="absolute left-0 top-0 bottom-0 w-4 flex items-center justify-center cursor-grab">
+        <div className="h-full w-4 bg-gray-100 rounded-r-lg flex flex-col items-center justify-center space-y-1.5">
+          <div className="w-1 h-1 bg-gray-500 rounded-full"></div>
+          <div className="w-1 h-1 bg-gray-500 rounded-full"></div>
+          <div className="w-1 h-1 bg-gray-500 rounded-full"></div>
         </div>
       </div>
 
-      {/* Sección derecha: Imagen */}
-      <div className="w-full md:w-1/3 pl-4 flex flex-col justify-center items-center">
-        {clientItem.media_url ? (
-          <img
-            src={clientItem.media_url}
-            alt="Imagen del cliente"
-            className="w-20 md:w-24 h-auto object-cover border"
-          />
-        ) : (
-          <div className="border p-2 text-gray-500 text-sm font-arsenal">
-            Sin imagen
+      {/* Contenido principal con margen para el handle */}
+      <div className="ml-6 w-full flex flex-col md:flex-row">
+        {/* Botones Edit/Delete top-right */}
+        <div className="absolute top-2 right-2 flex space-x-3">
+          <button
+            onClick={() => onDelete(clientItem.id)}
+            className="text-black hover:text-red-700"
+          >
+            <FontAwesomeIcon icon={faTrash} />
+          </button>
+          <button
+            onClick={() => onEdit(clientItem, currentLang)}
+            className="text-black hover:text-blue-800"
+          >
+            <FontAwesomeIcon icon={faPenToSquare} />
+          </button>
+        </div>
+
+        {/* Sección izquierda */}
+        <div className="w-full md:w-1/3 pr-4">
+          {/* Tabs de idiomas */}
+          <div className="flex space-x-2 mb-2">
+            <button
+              onClick={() => setCurrentLang("ES")}
+              className={`px-2 py-1 rounded-lg ${
+                currentLang === "ES"
+                  ? "bg-gray-200 font-bold"
+                  : "hover:bg-gray-100"
+              }`}
+            >
+              Español
+            </button>
+            <button
+              onClick={() => setCurrentLang("EN")}
+              className={`px-2 py-1 rounded-lg ${
+                currentLang === "EN"
+                  ? "bg-gray-200 font-arsenal"
+                  : "hover:bg-gray-100"
+              }`}
+            >
+              Inglés
+            </button>
+            <button
+              onClick={() => setCurrentLang("PT")}
+              className={`px-2 py-1 rounded-lg ${
+                currentLang === "PT"
+                  ? "bg-gray-200 font-arsenal"
+                  : "hover:bg-gray-100"
+              }`}
+            >
+              Portugués
+            </button>
           </div>
-        )}
+          <h3 className="font-arsenal">Nombre:</h3>
+          <p className="mb-3">{getFieldByLang("name") || "Sin nombre"}</p>
+
+          <h3 className="font-arsenal">Título de trabajo:</h3>
+          <p className="mb-3">{getFieldByLang("job_title") || "Sin título"}</p>
+        </div>
+
+        {/* Sección central: Descripción con scrollbar */}
+        <div className="w-full md:w-1/3 px-2">
+          <h3 className="font-arsenal mb-1">Descripción:</h3>
+          <div className="border p-2 h-[100px] overflow-y-auto">
+            {getFieldByLang("description") || "Sin descripción"}
+          </div>
+        </div>
+
+        {/* Sección derecha: Imagen */}
+        <div className="w-full md:w-1/3 pl-4 flex flex-col justify-center items-center">
+          {clientItem.media_url ? (
+            <img
+              src={clientItem.media_url}
+              alt="Imagen del cliente"
+              className="w-20 md:w-24 h-auto object-cover border"
+            />
+          ) : (
+            <div className="border p-2 text-gray-500 text-sm font-arsenal">
+              Sin imagen
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

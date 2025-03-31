@@ -57,119 +57,133 @@ export default function EventsCard({
   };
 
   return (
-    <div className="relative w-full border rounded-lg shadow p-4 flex flex-col md:flex-row z-10 mb-6">
-      {/* Botones top-right */}
-      <div className="absolute top-2 right-2 flex space-x-3">
-        <button
-          onClick={() => onDelete(eventItem.id)}
-          className="text-black hover:text-red-700"
-        >
-          <FontAwesomeIcon icon={faTrash} />
-        </button>
-        <button
-          onClick={() => onEdit(eventItem, currentLang)}
-          className="text-black hover:text-blue-800"
-        >
-          <FontAwesomeIcon icon={faPenToSquare} />
-        </button>
+    <div className="relative w-full border rounded-lg shadow p-4 flex flex-col md:flex-row z-10 mb-6 bg-white">
+      {/* Grab Handle con pestaña */}
+      <div className="absolute left-0 top-0 bottom-0 w-4 flex items-center justify-center cursor-grab">
+        <div className="h-full w-4 bg-gray-100 rounded-r-lg flex flex-col items-center justify-center space-y-1.5">
+          <div className="w-1 h-1 bg-gray-500 rounded-full"></div>
+          <div className="w-1 h-1 bg-gray-500 rounded-full"></div>
+          <div className="w-1 h-1 bg-gray-500 rounded-full"></div>
+        </div>
       </div>
 
-      {/* Izquierda */}
-      <div className="w-full md:w-1/3 pr-4">
-        {/* Tabs de idioma */}
-        <div className="flex space-x-2 mb-2">
+      {/* Contenido principal con margen para el handle */}
+      <div className="ml-6 w-full flex flex-col md:flex-row">
+        {/* Botones top-right */}
+        <div className="absolute top-2 right-2 flex space-x-3">
           <button
-            onClick={() => setCurrentLang("ES")}
-            className={`px-2 py-1 rounded-lg ${
-              currentLang === "ES"
-                ? "bg-gray-200 font-bold"
-                : "hover:bg-gray-100"
-            }`}
+            onClick={() => onDelete(eventItem.id)}
+            className="text-black hover:text-red-700"
           >
-            Español
+            <FontAwesomeIcon icon={faTrash} />
           </button>
           <button
-            onClick={() => setCurrentLang("EN")}
-            className={`px-2 py-1 rounded-lg ${
-              currentLang === "EN"
-                ? "bg-gray-200 font-bold"
-                : "hover:bg-gray-100"
-            }`}
+            onClick={() => onEdit(eventItem, currentLang)}
+            className="text-black hover:text-blue-800"
           >
-            Inglés
-          </button>
-          <button
-            onClick={() => setCurrentLang("PT")}
-            className={`px-2 py-1 rounded-lg ${
-              currentLang === "PT"
-                ? "bg-gray-200 font-bold"
-                : "hover:bg-gray-100"
-            }`}
-          >
-            Portugués
+            <FontAwesomeIcon icon={faPenToSquare} />
           </button>
         </div>
 
-        <h3 className="font-arsenal">Nombre:</h3>
-        <p className="mb-2">{getFieldByLang("name") || "Sin nombre"}</p>
-
-        <h3 className="font-arsenal">Fecha y hora:</h3>
-        <p className="mb-2">
-          {eventItem.date_time
-            ? new Date(eventItem.date_time).toLocaleString()
-            : "No definida"}
-        </p>
-
-        <h3 className="font-arsenal">Ubicación:</h3>
-        <p className="mb-2">{getFieldByLang("location") || "Sin ubicación"}</p>
-
-        <h3 className="font-arsenal">Categoría:</h3>
-        <p>{getFieldByLang("category") || "Sin categoría"}</p>
-      </div>
-
-      {/* Centro: Descripción */}
-      <div className="w-full md:w-1/3 px-2">
-        <h3 className="font-arsenal mb-1">Descripción:</h3>
-        <div className="border p-2 h-[100px] overflow-y-auto">
-          {getFieldByLang("description") || "Sin descripción"}
-        </div>
-
-        <h3 className="font-arsenal mt-2">Duración:</h3>
-        <p>
-          {eventItem.duration ? `${eventItem.duration} horas` : "No definida"}
-        </p>
-
-        <h3 className="font-arsenal mt-2">Costo:</h3>
-        <p>{eventItem.cost || "Gratis"}</p>
-
-        <h3 className="font-arsenal mt-2">Enlace de registro:</h3>
-        {eventItem.register_link ? (
-          <a
-            href={eventItem.register_link}
-            target="_blank"
-            rel="noreferrer"
-            className="text-black underline font-arsenal"
-          >
-            Abrir enlace
-          </a>
-        ) : (
-          "No disponible"
-        )}
-      </div>
-
-      {/* Derecha: Imagen */}
-      <div className="w-full md:w-1/3 pl-4 flex flex-col justify-center items-center">
-        {eventItem.media_url ? (
-          <img
-            src={eventItem.media_url}
-            alt="Imagen del evento"
-            className="w-20 md:w-24 h-auto object-cover border"
-          />
-        ) : (
-          <div className="border p-2 text-gray-500 text-sm font-arsenal">
-            Sin imagen
+        {/* Izquierda */}
+        <div className="w-full md:w-1/3 pr-4">
+          {/* Tabs de idioma */}
+          <div className="flex space-x-2 mb-2">
+            <button
+              onClick={() => setCurrentLang("ES")}
+              className={`px-2 py-1 rounded-lg ${
+                currentLang === "ES"
+                  ? "bg-gray-200 font-bold"
+                  : "hover:bg-gray-100"
+              }`}
+            >
+              Español
+            </button>
+            <button
+              onClick={() => setCurrentLang("EN")}
+              className={`px-2 py-1 rounded-lg ${
+                currentLang === "EN"
+                  ? "bg-gray-200 font-bold"
+                  : "hover:bg-gray-100"
+              }`}
+            >
+              Inglés
+            </button>
+            <button
+              onClick={() => setCurrentLang("PT")}
+              className={`px-2 py-1 rounded-lg ${
+                currentLang === "PT"
+                  ? "bg-gray-200 font-bold"
+                  : "hover:bg-gray-100"
+              }`}
+            >
+              Portugués
+            </button>
           </div>
-        )}
+
+          <h3 className="font-arsenal">Nombre:</h3>
+          <p className="mb-2">{getFieldByLang("name") || "Sin nombre"}</p>
+
+          <h3 className="font-arsenal">Fecha y hora:</h3>
+          <p className="mb-2">
+            {eventItem.date_time
+              ? new Date(eventItem.date_time).toLocaleString()
+              : "No definida"}
+          </p>
+
+          <h3 className="font-arsenal">Ubicación:</h3>
+          <p className="mb-2">
+            {getFieldByLang("location") || "Sin ubicación"}
+          </p>
+
+          <h3 className="font-arsenal">Categoría:</h3>
+          <p>{getFieldByLang("category") || "Sin categoría"}</p>
+        </div>
+
+        {/* Centro: Descripción */}
+        <div className="w-full md:w-1/3 px-2">
+          <h3 className="font-arsenal mb-1">Descripción:</h3>
+          <div className="border p-2 h-[100px] overflow-y-auto">
+            {getFieldByLang("description") || "Sin descripción"}
+          </div>
+
+          <h3 className="font-arsenal mt-2">Duración:</h3>
+          <p>
+            {eventItem.duration ? `${eventItem.duration} horas` : "No definida"}
+          </p>
+
+          <h3 className="font-arsenal mt-2">Costo:</h3>
+          <p>{eventItem.cost || "Gratis"}</p>
+
+          <h3 className="font-arsenal mt-2">Enlace de registro:</h3>
+          {eventItem.register_link ? (
+            <a
+              href={eventItem.register_link}
+              target="_blank"
+              rel="noreferrer"
+              className="text-black underline font-arsenal"
+            >
+              Abrir enlace
+            </a>
+          ) : (
+            "No disponible"
+          )}
+        </div>
+
+        {/* Derecha: Imagen */}
+        <div className="w-full md:w-1/3 pl-4 flex flex-col justify-center items-center">
+          {eventItem.media_url ? (
+            <img
+              src={eventItem.media_url}
+              alt="Imagen del evento"
+              className="w-20 md:w-24 h-auto object-cover border"
+            />
+          ) : (
+            <div className="border p-2 text-gray-500 text-sm font-arsenal">
+              Sin imagen
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
