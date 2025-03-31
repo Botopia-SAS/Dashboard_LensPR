@@ -22,7 +22,7 @@ type Language = "ES" | "EN" | "PT";
 interface NewsCardProps {
   newsItem: NewsRecord;
   onDelete: (id: string) => void;
-  onEdit: (item: NewsRecord, lang: Language) => void;
+  onEdit: (itemOrRecord: NewsRecord, lang: Language) => void;
 }
 
 export default function NewsCard({
