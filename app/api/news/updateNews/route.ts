@@ -15,6 +15,7 @@ export async function PATCH(req: Request) {
       Portugués,
       media_url,
       news_link,
+      client_id,
       order_number,
     } = body;
 
@@ -47,6 +48,7 @@ export async function PATCH(req: Request) {
 
       media_url: media_url?.trim() ?? null,
       news_link: news_link?.trim() ?? null,
+      client_id: client_id?.trim() || null, // ⬅ Agregamos el client_id
     };
 
     // 📌 Solo actualizar `order_number` si se envía en la solicitud

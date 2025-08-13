@@ -21,6 +21,7 @@ interface NewsItem {
   editorial_portuguese: string;
   media_url: string;
   news_link: string;
+  client_id: string | null;
   order_number: number; // ✅ Asegurar que cada noticia tiene un número de orden
 }
 
@@ -35,6 +36,8 @@ export interface FormDataNews {
   Inglés: LanguageDataNews;
   Portugués: LanguageDataNews;
   media_url: string; // la URL final de Cloudinary
+  news_link?: string;
+  client_id?: string;
 }
 
 interface NewsRecord {
@@ -50,6 +53,7 @@ interface NewsRecord {
   editorial_portuguese: string | undefined;
   media_url: string | undefined;
   news_link: string | undefined;
+  client_id: string | undefined;
   // ...cualquier otro campo de "news"
 }
 
@@ -215,6 +219,8 @@ export default function NewsPage() {
         editorial: record.editorial_portuguese || "",
       },
       media_url: record.media_url || "",
+      news_link: record.news_link || "",
+      client_id: record.client_id || "",
     };
   };
 

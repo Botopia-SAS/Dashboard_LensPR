@@ -10,7 +10,7 @@ export async function POST(req: Request) {
     const body = await req.json();
     console.log("📌 Datos recibidos en /api/addNews:", body);
 
-    const { Español, Inglés, Portugués, media_url, news_link } = body;
+    const { Español, Inglés, Portugués, media_url, news_link, client_id } = body;
     const editorial_clean = Español?.editorial
       ? Español.editorial.replace(/\s+/g, "")
       : null;
@@ -44,6 +44,7 @@ export async function POST(req: Request) {
 
       media_url: media_url?.trim() ?? null,
       news_link: news_link?.trim() ?? null, // ⬅ Enlace de la noticia
+      client_id: client_id?.trim() || null, // ⬅ ID del cliente asociado
 
       order_number: order_number, // 📌 Asignar el nuevo `order_number`
     };

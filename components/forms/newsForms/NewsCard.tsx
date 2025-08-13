@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTrash, faPenToSquare } from "@fortawesome/free-solid-svg-icons";
 
@@ -16,6 +16,14 @@ interface NewsRecord {
   editorial_portuguese: string | undefined;
   media_url: string | undefined;
   news_link: string | undefined;
+  client_id: string | undefined;
+}
+
+interface ClientData {
+  id: string;
+  name_spanish: string | null;
+  name_english: string | null;
+  name_portuguese: string | null;
 }
 
 type Language = "ES" | "EN" | "PT";
@@ -32,6 +40,30 @@ export default function NewsCard({
   onEdit,
 }: NewsCardProps) {
   const [currentLang, setCurrentLang] = useState<Language>("ES");
+  const [clientName, setClientName] = useState<string | null>(null);
+
+  // Cargar el nombre del cliente si existe client_id
+  useEffect(() => {
+    const fetchClientName = async () => {
+      if (newsItem.client_id) {
+        try {
+          const response = await fetch("/api/clients/getClients");
+          if (response.ok) {
+            const clients: ClientData[] = await response.json();
+            const client = clients.find(c => c.id === newsItem.client_id);
+            if (client) {
+              const name = client.name_spanish || client.name_english || client.name_portuguese;
+              setClientName(name);
+            }
+          }
+        } catch (error) {
+          console.error("Error al obtener cliente:", error);
+        }
+      }
+    };
+
+    fetchClientName();
+  }, [newsItem.client_id]);
 
   const getFieldByLang = (fieldBase: string) => {
     if (currentLang === "ES") {
@@ -112,7 +144,14 @@ export default function NewsCard({
           <h3 className="font-arsenal">Título:</h3>
           <p className="mb-3">{getFieldByLang("title") || "Sin Título"}</p>
           <h3 className="font-arsenal">Editorial:</h3>
-          <p>{newsItem.editorial_spanish || "Sin Editorial"}</p>
+          <p className="mb-3">{newsItem.editorial_spanish || "Sin Editorial"}</p>
+          {/* Mostrar cliente asociado */}
+          {clientName && (
+            <>
+              <h3 className="font-arsenal">Cliente asociado:</h3>
+              <p className="text-blue-600 font-medium">{clientName}</p>
+            </>
+          )}
         </div>
 
         {/* Sección central: Descripción con scrollbar */}

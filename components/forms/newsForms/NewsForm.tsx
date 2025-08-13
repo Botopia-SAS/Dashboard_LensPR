@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { FormDataNews, LanguageDataNews } from "../../../types/news";
+import { ClientData } from "../../../types/clients";
 import FileUpload from "../../ui/FileUpload";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSpinner } from "@fortawesome/free-solid-svg-icons";
@@ -65,7 +66,12 @@ const NewsForm: React.FC<NewsFormProps> = ({
     Portugués: { title: "", description: "", editorial: "" },
     media_url: "",
     news_link: "", // ⬅ Agregamos el campo aquí
+    client_id: "", // ⬅ Agregamos el client_id
   });
+
+  // Estado para almacenar la lista de clientes
+  const [clients, setClients] = useState<ClientData[]>([]);
+  const [loadingClients, setLoadingClients] = useState(true);
 
   // Cargar datos si es edición
   useEffect(() => {
@@ -73,6 +79,27 @@ const NewsForm: React.FC<NewsFormProps> = ({
       setFormData(initialData);
     }
   }, [initialData]);
+
+  // Cargar la lista de clientes al montar el componente
+  useEffect(() => {
+    const fetchClients = async () => {
+      try {
+        const response = await fetch("/api/clients/getClients");
+        if (response.ok) {
+          const clientsData = await response.json();
+          setClients(clientsData);
+        } else {
+          console.error("Error al obtener clientes");
+        }
+      } catch (error) {
+        console.error("Error al obtener clientes:", error);
+      } finally {
+        setLoadingClients(false);
+      }
+    };
+
+    fetchClients();
+  }, []);
 
   // Manejo de cambios en los inputs
   const handleTextChange = (
@@ -162,20 +189,54 @@ const NewsForm: React.FC<NewsFormProps> = ({
   };
 
   const isFormValid = () => {
+    // Debug: mostrar el estado actual del formulario
+    console.log("🔍 Validando formulario:", {
+      media_url: formData.media_url,
+      editorial: formData.Español.editorial,
+      español: {
+        title: formData.Español.title,
+        description: formData.Español.description,
+      },
+      inglés: {
+        title: formData.Inglés.title,
+        description: formData.Inglés.description,
+      },
+      portugués: {
+        title: formData.Portugués.title,
+        description: formData.Portugués.description,
+      }
+    });
+
     // Revisar que todos los campos en los tres idiomas estén llenos
     for (const lang of ["Español", "Inglés", "Portugués"] as const) {
       const data = formData[lang];
       if (
         !data.title.trim() ||
-        !data.description.trim() ||
-        !data.editorial.trim()
+        !data.description.trim()
       ) {
+        console.log(`❌ Campo vacío en ${lang}:`, {
+          title: data.title,
+          description: data.description
+        });
         return false; // Si algún campo está vacío, el formulario no es válido
       }
     }
 
-    // Verificar que los demás campos también estén completos
-    return !!formData.media_url && !!(formData.news_link ?? "").trim();
+    // Verificar que el editorial esté lleno (solo necesitamos verificar el español ya que se copia a todos)
+    if (!formData.Español.editorial.trim()) {
+      console.log("❌ Editorial vacío");
+      return false;
+    }
+
+    // Verificar que al menos tengas una imagen subida
+    // El news_link y client_id son opcionales
+    if (!formData.media_url) {
+      console.log("❌ No hay imagen subida");
+      return false;
+    }
+
+    console.log("✅ Formulario válido");
+    return true;
   };
 
   return (
@@ -248,14 +309,39 @@ const NewsForm: React.FC<NewsFormProps> = ({
         />
       </div>
 
+      {/* Dropdown para seleccionar cliente */}
+      <div className="mb-4">
+        <label className="block font-bold">Cliente asociado (opcional):</label>
+        {loadingClients ? (
+          <div className="flex items-center">
+            <FontAwesomeIcon icon={faSpinner} spin className="mr-2" />
+            <span>Cargando clientes...</span>
+          </div>
+        ) : (
+          <select
+            className="border p-2 w-full"
+            value={formData.client_id || ""}
+            onChange={(e) =>
+              setFormData((prev) => ({ ...prev, client_id: e.target.value }))
+            }
+          >
+            <option value="">-- Selecciona un cliente (opcional) --</option>
+            {clients.map((client) => (
+              <option key={client.id} value={client.id}>
+                {client.name_spanish || client.name_english || client.name_portuguese || "Cliente sin nombre"}
+              </option>
+            ))}
+          </select>
+        )}
+      </div>
+
       {/* Subir archivo */}
       <div className="mb-4">
         <FileUpload onFileUpload={handleUpload} />
       </div>
       {!isFormValid() && (
         <p className="text-yellow-600 font-arsenal mb-2">
-          ⚠️ Debes completar todos los campos en los tres idiomas, subir una
-          imagen y agregar un enlace antes de guardar.
+          ⚠️ Debes completar todos los campos en los tres idiomas y subir una imagen antes de guardar.
         </p>
       )}
 
