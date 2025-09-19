@@ -9,6 +9,7 @@ import {
   FaTimes,
   FaChevronDown,
   FaPalette,
+  FaEdit,
 } from "react-icons/fa";
 import { motion } from "framer-motion";
 
@@ -33,6 +34,11 @@ const Sidebar = () => {
       icon: <FaNewspaper />, // Cambia el icono si lo deseas
       path: "/Dashboard_desktopView/news",
     },
+    {
+      name: "Blogs",
+      icon: <FaEdit />,
+      path: "/Dashboard_desktopView/blogs",
+    },
 
     {
       name: "Events",
@@ -56,7 +62,7 @@ const Sidebar = () => {
       {/* 🔹 Sidebar en pantallas grandes (con expansión al pasar el mouse) */}
       <motion.aside
         className={
-          "hidden lg:flex fixed left-0 top-0 h-full border-r-2  bg-white shadow-lg flex-col py-6 px-4 font-arsenal text-xl transition-all text-black "
+          "hidden lg:flex fixed left-0 top-0 h-full border-r border-gray-200 bg-white shadow-lg flex-col py-6 px-4 font-arsenal text-xl transition-all text-black"
         }
         initial={{ width: 80 }}
         animate={{ width: isExpanded ? 180 : 100 }}

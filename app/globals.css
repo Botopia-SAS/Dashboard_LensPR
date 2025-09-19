@@ -23,3 +23,26 @@ body {
   background: var(--background);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* --- RichText Resizable Images --- */
+.resizable-image { position: relative; display: inline-block; max-width:100%; }
+.resizable-image img { width:100%; height:auto; display:block; border-radius:4px; }
+.resizable-image.float-left { float:left; margin:4px 16px 8px 0; }
+.resizable-image.float-right { float:right; margin:4px 0 8px 16px; }
+.resizable-image .resize-handle, .resizable-image .resize-handle-corner {
+  position:absolute; background:#2563eb; width:10px; height:10px; border-radius:50%; cursor:ew-resize; top:50%; transform:translateY(-50%); right:-6px; box-shadow:0 0 0 2px #fff; z-index:10;
+}
+.resizable-image .resize-handle-corner { bottom:-6px; right:-6px; top:auto; cursor:nwse-resize; }
+.ProseMirror-selectednode.resizable-image { outline:2px solid #2563eb; }
+
+@media (max-width:640px){
+  .resizable-image.float-left, .resizable-image.float-right { float:none; margin:12px auto; width:100% !important; }
+}
+
+.blog-content img { max-width:100%; height:auto; }
+
+/* Social brand buttons inside editor/public */
+a.social-btn { display:inline-flex; align-items:center; gap:6px; background:#111827; color:#fff; padding:8px 14px; border-radius:6px; font-size:14px; font-weight:600; text-decoration:none; margin:4px 4px 4px 0; line-height:1; }
+a.social-btn img { display:block; width:16px; height:16px; object-fit:contain; }
+a.social-btn svg { display:block; }
+a.social-btn:hover { opacity:.9; }

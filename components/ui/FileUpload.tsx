@@ -2,11 +2,12 @@ import React, { useState, useRef } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTrash, faSync } from "@fortawesome/free-solid-svg-icons";
 
-const FileUpload = ({
-  onFileUpload,
-}: {
+interface FileUploadProps {
   onFileUpload: (file: File) => void;
-}) => {
+  children?: React.ReactNode;
+}
+
+const FileUpload: React.FC<FileUploadProps> = ({ onFileUpload, children }) => {
   const [preview, setPreview] = useState<string | null>(null);
   const [dragging, setDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null); // ✅ Referencia al input de archivos
@@ -65,11 +66,15 @@ const FileUpload = ({
           onChange={handleFileChange}
           className="hidden"
         />
-        <p className="text-gray-500 text-sm font-arsenal">
-          {dragging
-            ? "Suelta el archivo aquí"
-            : "Arrastra y suelta un archivo o haz clic para subir"}
-        </p>
+        {children ? (
+          children
+        ) : (
+          <p className="text-gray-500 text-sm font-arsenal">
+            {dragging
+              ? "Suelta el archivo aquí"
+              : "Arrastra y suelta un archivo o haz clic para subir"}
+          </p>
+        )}
       </div>
 
       {preview && (
