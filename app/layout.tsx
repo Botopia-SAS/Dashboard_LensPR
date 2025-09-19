@@ -31,12 +31,10 @@ export default function RootLayout({
             <PageWrapper>
               <ThemeProvider>
                 <div className="flex">
-                  {/* Sidebar con width fijo */}
-                  <div className="fixed left-0 top-0 h-screen w-[150px] bg-gray-900 text-black z-50">
-                    <Sidebar />
-                  </div>
-                  {/* Contenedor principal con padding izquierdo en lugar de margen */}
-                  <div className="flex-1 min-h-screen pt-2 px-6 transition-all duration-300 lg:ml-[150px] bg-white">
+                  {/* Sidebar fijo (usa su propio tamaño animado) */}
+                  <Sidebar />
+                  {/* Contenedor principal sin margen adicional (PageWrapper ya aplica padding a la izquierda) */}
+                  <div className="flex-1 min-h-screen pt-2 px-6 transition-all duration-300 bg-white">
                     {/* User Profile Button en la barra superior */}
                     <div className="flex justify-end mb-4"></div>
                     <Head>

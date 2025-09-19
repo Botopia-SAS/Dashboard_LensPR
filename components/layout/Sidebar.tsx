@@ -62,7 +62,7 @@ const Sidebar = () => {
       {/* 🔹 Sidebar en pantallas grandes (con expansión al pasar el mouse) */}
       <motion.aside
         className={
-          "hidden lg:flex fixed left-0 top-0 h-full border-r border-gray-200 bg-white shadow-lg flex-col py-6 px-4 font-arsenal text-xl transition-all text-black"
+          "hidden lg:flex fixed left-0 top-0 h-full bg-white shadow-lg flex-col py-6 px-4 font-arsenal text-xl transition-all text-black"
         }
         initial={{ width: 80 }}
         animate={{ width: isExpanded ? 180 : 100 }}
