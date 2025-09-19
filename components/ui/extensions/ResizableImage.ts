@@ -1,7 +1,7 @@
 import Image from '@tiptap/extension-image'
-import { Node as ProseNode } from 'prosemirror-model'
+import { Node as ProseNode } from '@tiptap/pm/model'
 import { Editor } from '@tiptap/core'
-import { TextSelection } from 'prosemirror-state'
+import { TextSelection } from '@tiptap/pm/state'
 
 interface ImageAttrs {
   src: string;
