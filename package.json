@@ -33,7 +33,7 @@
     "@tiptap/starter-kit": "^3.4.4",
     "cloudinary": "^2.5.1",
     "framer-motion": "^12.4.7",
-    "next": "15.1.7",
+    "next": "^15.5.4",
     "react": "^19.0.0",
     "react-datepicker": "^8.1.0",
     "react-dom": "^19.0.0",
