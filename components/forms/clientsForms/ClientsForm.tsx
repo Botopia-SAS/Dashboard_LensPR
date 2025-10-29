@@ -28,11 +28,12 @@ async function translateText(
     let result = "";
 
     for (const chunk of chunks) {
-      const response = await fetch(
-        `https://api.mymemory.translated.net/get?q=${encodeURIComponent(
-          chunk
-        )}&langpair=${sourceLang}|${targetLang}`
-      );
+        const emailParam = process.env.NEXT_PUBLIC_MYMEMORY_EMAIL ? `&de=${encodeURIComponent(process.env.NEXT_PUBLIC_MYMEMORY_EMAIL)}` : "";
+        const response = await fetch(
+          `https://api.mymemory.translated.net/get?q=${encodeURIComponent(
+            chunk
+          )}&langpair=${sourceLang}|${targetLang}${emailParam}`
+        );
       const data = await response.json();
       result += data.responseData.translatedText || chunk;
     }

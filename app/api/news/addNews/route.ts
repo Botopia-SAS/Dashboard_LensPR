@@ -15,21 +15,38 @@ export async function POST(req: Request) {
       ? Español.editorial.replace(/\s+/g, "")
       : null;
 
-    // 📌 Obtener la cantidad actual de noticias para calcular el `order_number`
-    const { count, error: countError } = await supabase
+    // 📌 Incrementar el `order_number` de todas las noticias existentes
+    // para que la nueva noticia tome la posición 0 (al inicio)
+    const { data: existingNews, error: fetchError } = await supabase
       .from("news")
-      .select("*", { count: "exact", head: true });
+      .select("id, order_number");
 
-    if (countError) {
-      console.error("❌ Error al contar noticias:", countError);
+    if (fetchError) {
+      console.error("❌ Error al obtener noticias existentes:", fetchError);
       return NextResponse.json(
-        { error: "No se pudo calcular el orden de la noticia." },
+        { error: "No se pudo obtener las noticias existentes." },
         { status: 500 }
       );
     }
 
-    // 📌 Asignar un `order_number` secuencial basado en la cantidad de noticias existentes
-    const order_number = count ?? 0; // Si no hay noticias, empieza en 0
+    // 📌 Incrementar el order_number de cada noticia existente
+    if (existingNews && existingNews.length > 0) {
+      const updates = existingNews.map((news) => ({
+        id: news.id,
+        order_number: news.order_number + 1,
+      }));
+
+      // Actualizar en lote
+      for (const update of updates) {
+        await supabase
+          .from("news")
+          .update({ order_number: update.order_number })
+          .eq("id", update.id);
+      }
+    }
+
+    // 📌 La nueva noticia siempre tendrá order_number = 0 (primera posición)
+    const order_number = 0;
 
     const dataToInsert = {
       title_spanish: Español?.title?.trim() ?? null,
