@@ -27,7 +27,9 @@ async function translateText(
     let result = "";
 
     for (const chunk of chunks) {
-      const emailParam = process.env.NEXT_PUBLIC_MYMEMORY_EMAIL ? `&de=${encodeURIComponent(process.env.NEXT_PUBLIC_MYMEMORY_EMAIL)}` : "";
+      const emailParam = process.env.NEXT_PUBLIC_MYMEMORY_EMAIL
+        ? `&de=${encodeURIComponent(process.env.NEXT_PUBLIC_MYMEMORY_EMAIL)}`
+        : "";
       const response = await fetch(
         `https://api.mymemory.translated.net/get?q=${encodeURIComponent(
           chunk
@@ -205,19 +207,16 @@ const NewsForm: React.FC<NewsFormProps> = ({
       portugués: {
         title: formData.Portugués.title,
         description: formData.Portugués.description,
-      }
+      },
     });
 
     // Revisar que todos los campos en los tres idiomas estén llenos
     for (const lang of ["Español", "Inglés", "Portugués"] as const) {
       const data = formData[lang];
-      if (
-        !data.title.trim() ||
-        !data.description.trim()
-      ) {
+      if (!data.title.trim() || !data.description.trim()) {
         console.log(`❌ Campo vacío en ${lang}:`, {
           title: data.title,
-          description: data.description
+          description: data.description,
         });
         return false; // Si algún campo está vacío, el formulario no es válido
       }
@@ -329,7 +328,10 @@ const NewsForm: React.FC<NewsFormProps> = ({
             <option value="">-- Selecciona un cliente (opcional) --</option>
             {clients.map((client) => (
               <option key={client.id} value={client.id}>
-                {client.name_spanish || client.name_english || client.name_portuguese || "Cliente sin nombre"}
+                {client.name_spanish ||
+                  client.name_english ||
+                  client.name_portuguese ||
+                  "Cliente sin nombre"}
               </option>
             ))}
           </select>
@@ -342,7 +344,8 @@ const NewsForm: React.FC<NewsFormProps> = ({
       </div>
       {!isFormValid() && (
         <p className="text-yellow-600 font-arsenal mb-2">
-          ⚠️ Debes completar todos los campos en los tres idiomas y subir una imagen antes de guardar.
+          ⚠️ Debes completar todos los campos en los tres idiomas y subir una
+          imagen antes de guardar.
         </p>
       )}
 

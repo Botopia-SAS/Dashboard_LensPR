@@ -22,21 +22,41 @@ export async function POST(req: Request) {
     // 📌 Extraer datos con validación
     const { Español, Inglés, Portugués, media_url } = body;
 
-    // 📌 Obtener la cantidad actual de clientes para asignar `order_number`
-    const { count, error: countError } = await supabase
+    // 📌 Incrementar el order_number de todos los clientes existentes
+    const { data: allClients, error: fetchError } = await supabase
       .from("clients")
-      .select("*", { count: "exact", head: true });
+      .select("id, order_number")
+      .order("order_number", { ascending: true });
 
-    if (countError) {
-      console.error("❌ Error al contar clientes:", countError);
+    if (fetchError) {
+      console.error("❌ Error al obtener clientes:", fetchError);
       return NextResponse.json(
-        { error: "No se pudo calcular el orden del cliente." },
+        { error: "No se pudo obtener la lista de clientes." },
         { status: 500 }
       );
     }
 
-    // 📌 Asignar un número de orden basado en la cantidad actual de clientes
-    const order_number = count ?? 0; // Si no hay clientes, empieza en 0
+    // 📌 Incrementar el order_number de cada cliente existente
+    if (allClients && allClients.length > 0) {
+      const updates = allClients.map((client) => ({
+        id: client.id,
+        order_number: client.order_number + 1,
+      }));
+
+      for (const update of updates) {
+        const { error: updateError } = await supabase
+          .from("clients")
+          .update({ order_number: update.order_number })
+          .eq("id", update.id);
+
+        if (updateError) {
+          console.error("❌ Error al actualizar order_number:", updateError);
+        }
+      }
+    }
+
+    // 📌 Asignar order_number = 0 al nuevo cliente (aparecerá primero)
+    const order_number = 0;
 
     const dataToInsert = {
       name_spanish: Español?.name?.trim() || null,

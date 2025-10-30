@@ -25,7 +25,7 @@ export default function ClientsPage() {
       if (!res.ok) throw new Error("Error al obtener clientes");
       const data: ClientsRecord[] = await res.json(); // 👈 Aquí definimos explícitamente el tipo
 
-      // Ordenar clientes por el campo `order`
+      // Ordenar clientes por el campo `order` (ascendente, los de menor número aparecen primero)
       setClients(
         data.sort(
           (a: ClientsRecord, b: ClientsRecord) =>
@@ -229,11 +229,7 @@ export default function ClientsPage() {
         <DragDropContext onDragEnd={handleDragEnd}>
           <Droppable droppableId="clients-list">
             {(provided) => (
-              <div
-                ref={provided.innerRef}
-                {...provided.droppableProps}
-                className="grid gap-y-6 gap-x-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 mb-6"
-              >
+              <div ref={provided.innerRef} {...provided.droppableProps}>
                 {filteredClients.map((item, index) => (
                   <Draggable key={item.id} draggableId={item.id} index={index}>
                     {(provided) => (

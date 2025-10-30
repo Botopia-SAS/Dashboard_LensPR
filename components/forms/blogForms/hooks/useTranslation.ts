@@ -13,7 +13,11 @@ function chunkString(str: string, size: number): string[] {
 }
 
 // Función de traducción
-async function translateText(text: string, sourceLang: string, targetLang: string): Promise<string> {
+async function translateText(
+  text: string,
+  sourceLang: string,
+  targetLang: string
+): Promise<string> {
   if (!text?.trim()) return text;
 
   try {
@@ -21,9 +25,13 @@ async function translateText(text: string, sourceLang: string, targetLang: strin
     let result = "";
 
     for (const chunk of chunks) {
-      const emailParam = process.env.NEXT_PUBLIC_MYMEMORY_EMAIL ? `&de=${encodeURIComponent(process.env.NEXT_PUBLIC_MYMEMORY_EMAIL)}` : "";
+      const emailParam = process.env.NEXT_PUBLIC_MYMEMORY_EMAIL
+        ? `&de=${encodeURIComponent(process.env.NEXT_PUBLIC_MYMEMORY_EMAIL)}`
+        : "";
       const response = await fetch(
-        `https://api.mymemory.translated.net/get?q=${encodeURIComponent(chunk)}&langpair=${sourceLang}|${targetLang}${emailParam}`
+        `https://api.mymemory.translated.net/get?q=${encodeURIComponent(
+          chunk
+        )}&langpair=${sourceLang}|${targetLang}${emailParam}`
       );
       const data = await response.json();
       result += data.responseData.translatedText || chunk;
@@ -48,9 +56,9 @@ export const useTranslation = () => {
     try {
       const updated = { ...formData };
       const langMap: Record<BlogLanguageKey, string> = {
-        "Español": "es",
-        "Inglés": "en",
-        "Portugués": "pt"
+        Español: "es",
+        Inglés: "en",
+        Portugués: "pt",
       };
 
       const source = langMap[sourceLang];
@@ -62,17 +70,25 @@ export const useTranslation = () => {
         "content",
         "metaTitle",
         "metaDescription",
-        "category"
+        "category",
       ] as const;
 
       for (const field of fieldsToTranslate) {
         const originalText = (updated[sourceLang][field] as string) || "";
 
         if (originalText.trim()) {
-          for (const targetLang of ["Español", "Inglés", "Portugués"] as const) {
+          for (const targetLang of [
+            "Español",
+            "Inglés",
+            "Portugués",
+          ] as const) {
             if (targetLang !== sourceLang) {
               const target = langMap[targetLang];
-              updated[targetLang][field] = await translateText(originalText, source, target) as string;
+              updated[targetLang][field] = (await translateText(
+                originalText,
+                source,
+                target
+              )) as string;
             }
           }
         }
@@ -109,6 +125,6 @@ export const useTranslation = () => {
 
   return {
     isTranslating,
-    translateContent
+    translateContent,
   };
 };
