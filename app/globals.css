@@ -46,3 +46,24 @@ a.social-btn { display:inline-flex; align-items:center; gap:6px; background:#111
 a.social-btn img { display:block; width:16px; height:16px; object-fit:contain; }
 a.social-btn svg { display:block; }
 a.social-btn:hover { opacity:.9; }
+
+/* --- TipTap Editor Text Alignment Styles --- */
+/* Asegura que la alineación funcione por bloques individuales */
+.ProseMirror p[style*="text-align"],
+.ProseMirror h1[style*="text-align"],
+.ProseMirror h2[style*="text-align"],
+.ProseMirror h3[style*="text-align"],
+.ProseMirror h4[style*="text-align"],
+.ProseMirror h5[style*="text-align"],
+.ProseMirror h6[style*="text-align"] {
+  /* El estilo inline ya define text-align, esto es solo para asegurar especificidad */
+}
+
+/* Placeholder del editor */
+.ProseMirror p.is-editor-empty:first-child::before {
+  color: #9ca3af;
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  pointer-events: none;
+}
